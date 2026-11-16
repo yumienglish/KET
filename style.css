@@ -176,3 +176,12 @@ input.txt:disabled{opacity:1;-webkit-text-fill-color:currentColor}
 .prog .t{font-size:14px;font-weight:700;color:var(--muted)}
 .prog .track{height:10px;background:#e1e8ef;border-radius:99px;overflow:hidden;margin-top:3px}
 .prog .fill{height:100%;background:linear-gradient(90deg,#3cc6a8,#0f7c9c);width:0;transition:width .3s}
+
+/* sau lần 1: thanh ghim đầu màn hình + chế độ chỉ hiện câu sai */
+.topbar{position:sticky;top:8px;z-index:45;display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;background:#fff4e6;border:2px solid var(--accent);border-radius:16px;padding:10px 14px;margin-bottom:16px;box-shadow:0 6px 18px rgba(0,0,0,.14)}
+.topbar .tt{flex:1;min-width:160px;font-weight:800;font-size:16.5px;line-height:1.35}
+.topbar .btn{padding:11px 18px}
+.rt-hide{display:none!important}
+body.retrying #summaryBox,body.retrying #whoBar,body.retrying .guide,body.retrying .src,body.retrying .how,body.retrying .vn{display:none}
+.steps{list-style:none;margin:0 0 8px;padding:0}
+.steps li{margin:4px 0}

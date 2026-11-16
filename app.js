@@ -87,12 +87,12 @@ function renderHome(){
   const next = LESSONS[OPEN_WEEK + 1];
   $('#app').innerHTML = `<section class="card">
       <h2 style="margin:0 0 4px">👋 Hello!</h2>
-      <p class="muted" style="margin:0">Mỗi tuần cô mở <b>1 bài</b>. Chọn bài của tuần này để làm nhé. Bài làm tự lưu trên máy, làm xong bấm <b>Submit</b> là cô nhận được.</p>
+      <p class="muted" style="margin:0">Mỗi tuần 1 bài. Chọn bài tuần này, làm xong bấm <b>Submit</b>.</p>
     </section>
     ${weeks.map(w => {
       const L = LESSONS[w], s = lsGet(storeKey(w)) || {};
       const st = s.phase === 'done' ? `<span class="tag ok">✅ Done${s.r2 ? ' · ' + s.r2.score + '/' + s.r2.total : s.r1 ? ' · ' + s.r1.score + '/' + s.r1.total : ''}</span>`
-        : s.phase === 'retry' ? '<span class="tag warn">✏️ Fix your mistakes</span>'
+        : s.phase === 'retry' || s.phase === 'review' ? '<span class="tag warn">✏️ Làm lại câu sai</span>'
         : s.startedAt ? '<span class="tag">⏳ In progress</span>' : '<span class="tag new">🆕 New</span>';
       return `<a class="card lesson" href="?w=${w}">
         <div class="lnum">${esc(L.code)}</div>
@@ -105,7 +105,8 @@ function renderHome(){
 
 /* ============ TRẠNG THÁI BÀI ============ */
 let S = null;
-const blank = () => ({ name: '', cls: '', startedAt: null, leaves: 0, t: {}, pick: [], best: null, rec: {}, plays: {}, phase: 'work', r1: null, r2: null, sid: '', sent1: false, sent2: false });
+// phase: work → (Submit) review: xem đúng/sai, khoá hết → (Làm lại câu sai) retry: chỉ hiện câu sai + gợi ý → (Nộp lần 2) done
+const blank = () => ({ name: '', cls: '', startedAt: null, leaves: 0, t: {}, pick: [], best: null, rec: {}, plays: {}, phase: 'work', r1: null, r2: null, sid: '', sent1: false, sent2: false, retryAt: null });
 const save = () => lsSet(storeKey(WEEK_NO), S);
 const exOf = type => LESSON.ex.filter(e => e.type === type);
 
@@ -313,17 +314,16 @@ function buildLesson(){
       <button class="btn" id="startBtn" type="button">Start →</button>
     </section>
     <div id="work" hidden>
+      <div class="topbar" id="topbar" hidden></div>
       <div id="summaryBox"></div>
       <div class="card who" id="whoBar"></div>
       <section class="card guide">
-        <h2>📋 How to do this homework</h2>
-        <ol>
-          <li>Làm lần lượt từng bài từ trên xuống. Bài nghe thì bấm ▶ để nghe, nghe lại bao nhiêu lần cũng được.</li>
-          <li>Chữ tô màu như ${vt('{{best friend}}')} là <b>từ mới</b>: chạm vào để xem nghĩa, máy sẽ đọc to cho em nghe.</li>
-          <li>Làm xong bấm <b>Submit</b>. Câu sai hiện màu đỏ, em được <b>làm lại các câu sai</b> rồi bấm <b>Submit</b> lần 2.</li>
-          <li>Đang làm bài thì đừng thoát ra khỏi trang nhé, cô sẽ biết em rời trang mấy lần đó 😉</li>
-        </ol>
-        <div class="note">✍️ <b>Remember:</b> copy the new words into your notebook! <span class="muted">Em nhớ chép từ mới vào vở nha!</span></div>
+        <ul class="steps">
+          <li>🎧 Bấm ▶ để nghe, nghe lại thoải mái.</li>
+          <li>👆 Chạm chữ màu như ${vt('{{best friend}}')} để xem nghĩa.</li>
+          <li>✅ Xong bấm <b>Submit</b>. Câu sai được làm lại 1 lần.</li>
+        </ul>
+        <div class="note">✍️ Chép từ mới vào vở nha!</div>
         <details class="vlist"><summary>📒 New words in this lesson (${allWords.length})</summary>
           <div class="vgrid">${allWords.map(k => `<div class="vi">${vt('{{' + k + '}}')}<span class="vipa">${esc(VOCAB[k].ipa)}</span><span class="vmean">${esc(VOCAB[k].vi)}</span></div>`).join('')}</div>
         </details>
@@ -397,12 +397,9 @@ function tasks(){
 }
 function progress(){
   const bar = $('#bar'); if (!bar) return;
-  if (S.phase === 'retry'){
-    const wrong = Object.keys(S.r1.items).filter(k => !S.r1.items[k].ok);
-    const fixed = wrong.filter(k => (S.t[k] || '').trim() !== (S.r1.items[k].ans || '')).length;
-    $('#progT').textContent = `Fix your mistakes: changed ${fixed}/${wrong.length}`;
-    $('#progF').style.width = (wrong.length ? fixed / wrong.length * 100 : 100) + '%';
-    $('#submitBtn').textContent = 'Submit (lần 2) ✔'; $('#submitBtn').hidden = false;
+  bar.hidden = S.phase === 'review' || S.phase === 'retry' || $('#work').hidden; // sau lần 1: nút ở thanh ghim đầu màn hình
+  if (S.phase === 'review' || S.phase === 'retry'){
+    topProgress();
   } else if (S.phase === 'done'){
     const R = S.r2 || S.r1;
     $('#progT').textContent = `Done · ${R.score}/${R.total} correct`;
@@ -438,6 +435,65 @@ function itemList(){
   return L;
 }
 
+/* ============ SAU LẦN 1: thanh ghim, chỉ hiện câu sai, gợi ý ============ */
+const wrongKeys = () => S.r1 ? Object.keys(S.r1.items).filter(k => !S.r1.items[k].ok) : [];
+function lev(a, b){
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+// Gợi ý ngắn, không lộ đáp án (chỉ hiện lúc làm lại)
+function hintFor(k){
+  const ans = (S.r1.items[k].ans || '').trim();
+  if (!ans) return 'Em chưa làm câu này.';
+  const e = LESSON.ex.find(x => k.startsWith(x.id + '-'));
+  if (e.type === 'spell'){
+    const key = letters(e.items[Number(k.split('-')[1]) - 1].key), y = letters(ans);
+    if (key.length !== y.length) return 'Đếm lại số chữ cái nhé.';
+    return lev(key, y) <= 2 ? 'Gần đúng rồi! Xem lại chính tả.' : 'Nghe lại phần đánh vần.';
+  }
+  let n = 0, who = '', keys = [];
+  e.people.forEach(p => p.rows.forEach(r => { if (r.ex) return; n++; if (e.id + '-' + n === k){ who = p.name; keys = alts(r.key); } }));
+  const y = norm(ans);
+  if (keys.some(a => { const x = norm(a); return x.length >= 4 && lev(x, y) <= Math.max(1, Math.floor(x.length / 4)); })) return 'Gần đúng rồi! Xem lại chính tả.';
+  return `Nghe lại đoạn ${who} nói.`;
+}
+const ITEM_SEL = '.sp, .person, .qrow';
+function focusWrong(on){
+  document.body.classList.toggle('retrying', !!on);
+  $$('.rt-hide').forEach(x => x.classList.remove('rt-hide'));
+  if (!on) return;
+  const els = wrongKeys().map(k => $(`input.txt[data-k="${k}"]`)).filter(Boolean);
+  $$('section.card.ex').forEach(sec => {
+    if (!els.some(el => sec.contains(el))){ sec.classList.add('rt-hide'); return; }
+    $$(ITEM_SEL, sec).forEach(c => { if (!els.some(el => c.contains(el))) c.classList.add('rt-hide'); });
+  });
+}
+function renderTop(){
+  const tb = $('#topbar'); if (!tb) return;
+  if (S.phase !== 'review' && S.phase !== 'retry'){ tb.hidden = true; return; }
+  tb.hidden = false;
+  if (S.phase === 'review'){
+    tb.innerHTML = `<div class="tt">Lần 1: ${S.r1.score}/${S.r1.total} · ❌ Sai ${wrongKeys().length} câu</div><button class="btn orange" type="button" id="retryBtn">✏️ Làm lại câu sai</button>`;
+    $('#retryBtn').onclick = startRetry;
+  } else {
+    tb.innerHTML = `<div class="tt" id="topT"></div><button class="btn orange" type="button" id="submit2Btn">Nộp lần 2 ✔</button>`;
+    $('#submit2Btn').onclick = onSubmit;
+    topProgress();
+  }
+}
+function topProgress(){
+  const el = $('#topT'); if (!el) return;
+  const w = wrongKeys(), fixed = w.filter(k => (S.t[k] || '').trim() !== (S.r1.items[k].ans || '')).length;
+  el.textContent = `✏️ Đã sửa ${fixed}/${w.length} câu`;
+}
+function startRetry(){
+  S.phase = 'retry'; S.retryAt = new Date().toISOString(); save();
+  paintAll(); window.scrollTo({ top: 0 });
+}
+
 /* ============ HIỂN THỊ KẾT QUẢ ============ */
 function paintMarks(){
   const list = itemList();
@@ -445,10 +501,11 @@ function paintMarks(){
     const el = $(`input.txt[data-k="${i.k}"]`), fix = $('#fix-' + i.k); if (!el) return;
     el.classList.remove('ok', 'bad'); if (fix) fix.textContent = '';
     if (S.phase === 'work'){ el.disabled = false; return; }
-    if (S.phase === 'retry'){
+    if (S.phase === 'review' || S.phase === 'retry'){
       const r1 = S.r1.items[i.k];
-      el.disabled = r1.ok; el.classList.add(r1.ok ? 'ok' : 'bad');
-      if (fix && !r1.ok) fix.innerHTML = '<span class="again">✏️ Try again</span>';
+      el.disabled = r1.ok || S.phase === 'review';
+      if (r1.ok || (S.t[i.k] || '').trim() === (r1.ans || '')) el.classList.add(r1.ok ? 'ok' : 'bad');
+      if (fix && !r1.ok && S.phase === 'retry') fix.innerHTML = '<span class="again">💡 ' + esc(hintFor(i.k)) + '</span>';
       return;
     }
     const R = (S.r2 || S.r1).items[i.k];
@@ -464,12 +521,10 @@ function renderSummary(){
     const sc = ks.filter(k => R.items[k].ok).length;
     return `<span class="sec${sc === ks.length ? ' full' : ''}">Ex ${e.id}: ${sc}/${ks.length}</span>`;
   }).join('');
-  if (S.phase === 'retry'){
-    const w = S.r1.total - S.r1.score;
+  if (S.phase === 'review' || S.phase === 'retry'){
     box.innerHTML = `<div class="card summary retry"><div class="score">${S.r1.score}<span>/${S.r1.total}</span></div>
-      <div class="sumr"><div class="big">✏️ First try: ${S.r1.score}/${S.r1.total}</div>
-      <div class="secs">${secs(S.r1)}</div>
-      <div>Em còn <b>${w} câu sai</b> (ô màu đỏ). Nghe lại bài, sửa các câu đó rồi bấm <b>Submit (lần 2)</b> ở dưới nhé. Các câu đúng (ô xanh) đã được khoá.</div>
+      <div class="sumr"><div class="secs">${secs(S.r1)}</div>
+      <div class="muted small">Ô đỏ = câu sai.</div>
       <div class="status" id="sendStatus"></div></div></div>`;
     updateStatus();
     return;
@@ -478,11 +533,11 @@ function renderSummary(){
   box.innerHTML = `<div class="card summary"><div class="score">${R.score}<span>/${R.total}</span></div>
     <div class="sumr"><div class="big">${R.score === R.total ? '🎉 Excellent! All correct!' : pct >= .8 ? '👏 Great job!' : pct >= .5 ? '💪 Good try!' : '📚 Let’s review the answers below.'}</div>
     <div class="secs">${S.r2 ? `<span class="sec">1st try: ${S.r1.score}/${S.r1.total}</span><span class="sec full">2nd try: ${S.r2.score}/${S.r2.total}</span>` : '<span class="sec full">All correct the first time ⭐</span>'}${secs(R)}</div>
-    <div class="muted small">Câu còn sai có ghi đáp án đúng (→). Bài speaking cô sẽ nghe và chấm sau.</div>
+    <div class="muted small">Câu sai có đáp án (→). Speaking: cô chấm sau.</div>
     <div class="status" id="sendStatus"></div></div></div>`;
   updateStatus();
 }
-function paintAll(){ paintMarks(); paintReasons(); paintSpeak(); renderSummary(); renderWho(); progress(); }
+function paintAll(){ paintMarks(); paintReasons(); paintSpeak(); focusWrong(S.phase === 'retry'); renderTop(); renderSummary(); renderWho(); progress(); }
 
 /* ============ NỘP BÀI ============ */
 async function onSubmit(){
@@ -493,20 +548,20 @@ async function onSubmit(){
     if (noRec.length){ alert('Em chưa ghi âm câu trả lời: ' + noRec.join(', ') + '.\nBài speaking phải ghi âm đủ mới nộp được nhé.'); document.getElementById('ex5') && document.getElementById('ex5').scrollIntoView({ behavior: 'smooth' }); return; }
     const left = t.filter(x => !x.done).length;
     muteAway = true;
-    const go = confirm(left ? `Còn ${left} câu chưa làm.\nEm vẫn nộp luôn hả?` : 'Submit nhé? Sau đó em sẽ được làm lại các câu sai.');
+    const go = confirm(left ? `Còn ${left} câu chưa làm. Nộp luôn?` : 'Nộp bài nhé?');
     releaseAway(); if (!go) return;
     stopAllAudio();
     const g = gradeNow(), at = new Date().toISOString();
     S.r1 = { at, leaves: S.leaves || 0, score: g.score, total: g.total, items: g.items };
     S.sid = makeSid();
-    S.phase = g.score === g.total ? 'done' : 'retry';
+    S.phase = g.score === g.total ? 'done' : 'review';
     save(); paintAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
     send();
     return;
   }
   if (S.phase === 'retry'){
     muteAway = true;
-    const go = confirm('Submit lần 2 nhé? Lần này nộp xong là không sửa được nữa đâu.');
+    const go = confirm('Nộp lần 2? Nộp xong sẽ hiện đáp án.');
     releaseAway(); if (!go) return;
     stopAllAudio();
     const g = gradeNow();
@@ -526,7 +581,7 @@ function updateStatus(){
   const allSent = S.sent1 && (!S.r2 || S.sent2);
   const st = allSent && sendState !== 'sending' ? 'ok' : sendState;
   el.className = 'status ' + (st || '');
-  if (st === 'ok') el.innerHTML = S.phase === 'retry' ? '✅ Cô đã nhận bài lần 1.' : S.r2 ? '✅ Cô đã nhận được bài lần 2!' : '✅ Cô đã nhận được bài!';
+  if (st === 'ok') el.innerHTML = S.phase === 'retry' || S.phase === 'review' ? '✅ Cô đã nhận bài lần 1.' : S.r2 ? '✅ Cô đã nhận được bài lần 2!' : '✅ Cô đã nhận được bài!';
   else if (!st) el.innerHTML = '';
   else if (st === 'sending') el.innerHTML = '⏳ Đang gửi bài cho cô… (có file ghi âm nên đợi chút nhé)';
   else el.innerHTML = `⚠️ Chưa gửi được bài${sendErr ? ` (${esc(sendErr)})` : ''}. Em kiểm tra mạng rồi bấm: <button class="btn sm" type="button" id="resendBtn">Gửi lại</button>`;
@@ -576,7 +631,7 @@ async function payload1(){
 function payload2(){
   const items = itemsOf(S.r2), first = itemsOf(S.r1);
   return Object.assign(base(), {
-    attempt: 2, startedAt: S.r1.at, submittedAt: S.r2.at, timeTakenSec: secsBetween(S.r1.at, S.r2.at), leaves: Math.max(0, S.r2.leaves - S.r1.leaves),
+    attempt: 2, startedAt: S.retryAt || S.r1.at, submittedAt: S.r2.at, timeTakenSec: secsBetween(S.retryAt || S.r1.at, S.r2.at), leaves: Math.max(0, S.r2.leaves - S.r1.leaves),
     score: S.r2.score, total: S.r2.total, sections: sectionsOf(items, null), items,
     first: { score: S.r1.score, total: S.r1.total, sections: sectionsOf(first, null), items: first,
       startedAt: S.startedAt, submittedAt: S.r1.at, timeTakenSec: secsBetween(S.startedAt, S.r1.at), leaves: S.r1.leaves },
@@ -605,7 +660,7 @@ async function send(){
 /* ============ ĐẾM SỐ LẦN RỜI TRANG ============ */
 let away = false, muteAway = false;
 function releaseAway(){ setTimeout(() => { muteAway = false; away = false; }, 800); }
-const tracking = () => S && !!S.startedAt && S.phase !== 'done' && $('#work') && !$('#work').hidden;
+const tracking = () => S && !!S.startedAt && (S.phase === 'work' || S.phase === 'retry') && $('#work') && !$('#work').hidden;
 function goAway(){ if (muteAway || away || REC || !tracking()) return; away = true; S.leaves = (S.leaves || 0) + 1; save(); }
 function comeBack(){ if (!document.hidden && document.hasFocus()) away = false; }
 document.addEventListener('visibilitychange', () => document.hidden ? goAway() : comeBack());
