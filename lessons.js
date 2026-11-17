@@ -3,7 +3,9 @@
    ---------------------------------------------------------------------
    • OPEN_WEEK: tuần đang mở. Mỗi tuần thêm 1 bài vào LESSONS rồi tăng số này.
      Các bài tuần trước vẫn mở để học sinh xem lại.
-   • Từ mới viết trong {{từ}} hoặc {{khoá|chữ hiển thị}}; khoá phải có trong VOCAB.
+   • Chữ highlight (bấm xem nghĩa) viết trong {{từ}} hoặc {{khoá|chữ hiển thị}}; khoá phải có trong VOCAB.
+   • newWords = danh sách "New words" đầu bài (để chép vở): chỉ từ A2 trở lên / liên quan ngữ pháp,
+     A1 chỉ lấy khi ít gặp. Từ nằm trong câu hỏi, đề bài KHÔNG đưa vào (vẫn highlight được).
    • Đáp án nhiều cách viết đúng thì ngăn bằng dấu |   (show = đáp án hiện cho HS xem)
    ===================================================================== */
 const OPEN_WEEK = 1;
@@ -53,13 +55,13 @@ const VOCAB = {
 /* ---------- BÀI HỌC THEO TUẦN ---------- */
 const LESSONS = {
   1: {
-    code: '1.1', title: 'Friends for ever', unit: 'Unit 1 · Friends', pages: 'Student’s Book p.8–9',
+    code: '1.1', title: 'Friends for ever', unit: 'Unit 1 · Friends',
+    newWords: ['be there for you', 'alone', 'text messages', 'tell lies', 'forget', 'chat', 'for hours', 'fridge', 'without', 'laugh', 'special'],
     ex: [
-      /* Exercise 1 – tự đánh giá, chạm vào tranh */
-      { id: '1', type: 'reasons', page: 'p.8',
+      /* Exercise 1 – tự đánh giá, chạm vào tranh (sách: Ex 1) */
+      { id: '1', type: 'reasons',
         title: 'Twelve reasons why friends are great!',
         how: 'Here are some {{reasons}} why friends are {{important}}. Which are {{true}} for you? Tap them! Then choose the best reason ⭐.',
-        vn: 'Chạm vào những lý do <b>đúng với em</b> (chạm lại để bỏ chọn). Sau đó chọn <b>1 lý do em thấy hay nhất</b>. Bài này không có đúng sai, em cứ chọn theo ý mình nhé.',
         img: 'reasons.jpg',
         // vùng chạm trên tranh: [trái, trên, phải, dưới] theo % kích thước tranh
         zones: {
@@ -80,14 +82,12 @@ const LESSONS = {
           10: 'They help you with your homework.',
           11: '{{party|Parties}} {{without}} your friends aren’t good!',
           12: 'Friends make you {{laugh}}.',
-        },
-        words: ['always', 'be there for you', 'alone', 'funny', 'text messages', 'tell lies', 'go shopping', 'forget', 'together', 'chat', 'for hours', 'favourite', 'fridge', 'party', 'without', 'laugh'] },
+        } },
 
-      /* Exercise 3 – nghe đánh vần */
-      { id: '3', type: 'spell', page: 'p.9', track: '1-02',
+      /* Exercise 2 – nghe đánh vần (sách: Ex 3) */
+      { id: '3', type: 'spell', track: '1-02',
         title: 'Pronunciation: spelling',
         how: '{{spelling|Spelling}} is {{important}} in the Key exam. Listen and write down the {{letters}} you hear. What {{famous}} names do the letters spell?',
-        vn: 'Nghe đánh vần từng chữ cái rồi viết lại thành tên. Mỗi gạch <b>_</b> là 1 chữ cái. Nhớ: <b>double B</b> nghĩa là <b>BB</b> (2 chữ B).',
         items: [
           { key: 'Novak Djokovic', hint: 'a {{tennis player}}' },
           { key: 'Penelope Cruz', hint: 'a {{film star}}' },
@@ -97,11 +97,10 @@ const LESSONS = {
           { key: 'The Foo Fighters', hint: 'an American {{band}}' },
         ] },
 
-      /* Exercise 4 – nghe điền thông tin */
-      { id: '4', type: 'info', page: 'p.9', track: '1-03',
+      /* Exercise 3 – nghe điền thông tin (sách: Ex 4) */
+      { id: '4', type: 'info', track: '1-03',
         title: 'Listening: best friends',
         how: 'Listen to Maria asking four {{teenagers}} about their {{best friend|best friends}}. {{complete|Complete}} the {{information}}.',
-        vn: 'Nghe Maria hỏi 4 bạn về <b>người bạn thân nhất</b> của họ, rồi điền thông tin vào chỗ trống (viết ngắn thôi, VD: <b>13</b>, <b>play football</b>). Câu đầu đã làm mẫu: bạn thân của Matt là <b>Jonny</b>.',
         people: [
           { name: 'Matt', img: 'matt.jpg', color: '#3a86ff', rows: [
             { q: '{{best friend|Best friend}} is', ex: 'Jonny' },
@@ -123,11 +122,10 @@ const LESSONS = {
           ] },
         ] },
 
-      /* Exercise 5 – speaking: nghe câu hỏi (không chữ) và ghi âm câu trả lời */
-      { id: '5', type: 'speak', page: 'p.9',
+      /* Exercise 4 – speaking: nghe câu hỏi (không chữ) và ghi âm câu trả lời (sách: Ex 5) */
+      { id: '5', type: 'speak',
         title: 'Speaking: answer Maria’s questions',
         how: 'Listen to Maria’s questions. There is no text, so listen carefully! Then record a short answer about <b>your</b> best friend.',
-        vn: 'Mỗi câu: bấm <b>▶ Listen</b> để nghe câu hỏi (nghe lại bao nhiêu lần cũng được), tự nghe xem Maria hỏi gì, rồi bấm <b>🎙 Record</b> để ghi âm câu trả lời ngắn bằng tiếng Anh. Nói xong bấm <b>⏹ Stop</b>. Nghe lại thấy chưa ổn thì bấm <b>Record again</b>.',
         tip: { title: 'Useful words', lines: ['Well …', 'That’s easy.', 'That’s difficult.', 'That’s right.'] },
         clips: [
           { audio: '1-04-q1', q: 'What’s your best friend called?' },

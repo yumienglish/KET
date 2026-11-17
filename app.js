@@ -87,7 +87,7 @@ function renderHome(){
   const next = LESSONS[OPEN_WEEK + 1];
   $('#app').innerHTML = `<section class="card">
       <h2 style="margin:0 0 4px">👋 Hello!</h2>
-      <p class="muted" style="margin:0">Mỗi tuần 1 bài. Chọn bài tuần này, làm xong bấm <b>Submit</b>.</p>
+      <p class="muted" style="margin:0">Mỗi tuần 1 bài. Chọn bài của tuần này nhé.</p>
     </section>
     ${weeks.map(w => {
       const L = LESSONS[w], s = lsGet(storeKey(w)) || {};
@@ -97,7 +97,7 @@ function renderHome(){
       return `<a class="card lesson" href="?w=${w}">
         <div class="lnum">${esc(L.code)}</div>
         <div class="linfo"><div class="lt">Week ${w}${w === OPEN_WEEK ? ' · <b class="now">This week</b>' : ''}</div>
-          <div class="ln">${esc(L.title)}</div><div class="ls">${esc(L.unit)} · ${esc(L.pages)}</div></div>
+          <div class="ln">${esc(L.title)}</div><div class="ls">${esc(L.unit)}</div></div>
         <div>${st}</div></a>`;
     }).join('')}
     ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Coming next week</div></div></div>` : ''}`;
@@ -214,11 +214,12 @@ document.addEventListener('play', ev => { if (QA && ev.target !== QA && !QA.paus
 /* ============ DỰNG BÀI ============ */
 function inp(k, label, extra = ''){ return `<input class="txt" data-k="${k}" ${ia} ${extra} aria-label="${esc(label)}">`; }
 
-function exHead(e, i){
-  return `<div class="ex-head"><span class="badge">Exercise ${e.id}</span><h2>${esc(e.title)}</h2></div>
-    <div class="src">Book ${esc(e.page)}${e.track ? ' · 🎧 Track ' + e.track : ''}</div>
+// số thứ tự bài hiển thị (1, 2, 3…), không dùng số bài trong sách
+const exNo = e => LESSON.ex.indexOf(e) + 1;
+function exHead(e){
+  return `<div class="ex-head"><span class="badge">Exercise ${exNo(e)}</span><h2>${esc(e.title)}</h2></div>
     ${e.track ? `<div class="listen"><audio controls preload="none" src="audio/${e.track}.mp3"></audio></div>` : ''}
-    <p class="how">${vt(e.how)}</p>${e.vn ? `<p class="vn">👉 ${e.vn}</p>` : ''}`;
+    <p class="how">${vt(e.how)}</p>`;
 }
 
 function exReasons(e){
@@ -226,7 +227,6 @@ function exReasons(e){
       ${Object.entries(e.zones).map(([n, z]) => `<button type="button" class="zone" data-n="${n}" aria-label="Reason ${n}"
         style="left:${z[0]}%;top:${z[1]}%;width:${z[2] - z[0]}%;height:${z[3] - z[1]}%"><span class="zk"></span></button>`).join('')}
     </div>
-    <div class="words"><span class="wl">📒 New words in the pictures:</span> ${e.words.map(w => vt(`{{${w}}}`)).join(' ')}</div>
     <div class="best" id="best-${e.id}"></div>`;
 }
 function paintReasons(){
@@ -239,7 +239,7 @@ function paintReasons(){
     });
     const box = $('#best-' + e.id);
     if (!S.pick.length){ box.innerHTML = '<p class="muted small">👆 Tap the pictures that are true for you.</p>'; return; }
-    box.innerHTML = `<h3>⭐ Which is the best reason? <span class="muted small">(Chọn 1 lý do hay nhất)</span></h3>
+    box.innerHTML = `<h3>⭐ Which is the best reason?</h3>
       ${S.pick.slice().sort((a, b) => a - b).map(n => `<div class="brow${S.best === n ? ' on' : ''}">
         <button type="button" class="bstar" data-n="${n}" ${lock ? 'disabled' : ''} aria-label="Best reason ${n}">${S.best === n ? '⭐' : '☆'}</button>
         <span class="bn">${n}</span><span class="bt">${vt(e.reasons[n])}</span></div>`).join('')}`;
@@ -302,8 +302,7 @@ function paintSpeak(){
 function buildLesson(){
   document.title = 'KET ' + LESSON.code + ' · ' + LESSON.title;
   $('#heroSub').textContent = `Week ${WEEK_NO} · ${LESSON.code} ${LESSON.title}`;
-  const allWords = [];
-  LESSON.ex.forEach(e => { const src = JSON.stringify(e); (src.match(/\{\{([^}|]+)/g) || []).forEach(m => { const k = m.slice(2); if (VOCAB[k] && !allWords.includes(k)) allWords.push(k); }); });
+  const allWords = (LESSON.newWords || []).filter(k => VOCAB[k]);
   $('#app').innerHTML = `
     <section class="card start" id="start">
       <h2>👋 Hi! What’s your name?</h2>
@@ -318,17 +317,11 @@ function buildLesson(){
       <div id="summaryBox"></div>
       <div class="card who" id="whoBar"></div>
       <section class="card guide">
-        <ul class="steps">
-          <li>🎧 Bấm ▶ để nghe, nghe lại thoải mái.</li>
-          <li>👆 Chạm chữ màu như ${vt('{{best friend}}')} để xem nghĩa.</li>
-          <li>✅ Xong bấm <b>Submit</b>. Câu sai được làm lại 1 lần.</li>
-        </ul>
-        <div class="note">✍️ Chép từ mới vào vở nha!</div>
-        <details class="vlist"><summary>📒 New words in this lesson (${allWords.length})</summary>
-          <div class="vgrid">${allWords.map(k => `<div class="vi">${vt('{{' + k + '}}')}<span class="vipa">${esc(VOCAB[k].ipa)}</span><span class="vmean">${esc(VOCAB[k].vi)}</span></div>`).join('')}</div>
-        </details>
+        <h2>📒 New words</h2>
+        <div class="note">✍️ Chép từ mới vào vở nha! Chạm vào từ màu vàng để xem nghĩa.</div>
+        <div class="vgrid">${allWords.map(k => `<div class="vi">${vt('{{' + k + '}}')}<span class="vipa">${esc(VOCAB[k].ipa)}</span><span class="vmean">${esc(VOCAB[k].vi)}</span></div>`).join('')}</div>
       </section>
-      ${LESSON.ex.map((e, i) => `<section class="card ex" id="ex${e.id}">${exHead(e, i)}${
+      ${LESSON.ex.map(e => `<section class="card ex" id="ex${e.id}">${exHead(e)}${
         e.type === 'reasons' ? exReasons(e) : e.type === 'spell' ? exSpell(e) : e.type === 'info' ? exInfo(e) : exSpeak(e)}</section>`).join('')}
     </div>`;
 
@@ -430,8 +423,8 @@ function gradeNow(){
 // danh sách câu (để hiển thị + gửi mail)
 function itemList(){
   const L = [];
-  exOf('spell').forEach(e => e.items.forEach((it, j) => L.push({ sec: e.id, k: e.id + '-' + (j + 1), n: String(j + 1), q: 'Spell: ' + plain(it.hint), correct: it.key.toUpperCase() })));
-  exOf('info').forEach(e => { let n = 0; e.people.forEach(p => p.rows.forEach(r => { if (r.ex) return; n++; L.push({ sec: e.id, k: e.id + '-' + n, n: String(n), q: p.name + ' – ' + plain(r.q), correct: r.show || alts(r.key)[0] }); })); });
+  exOf('spell').forEach(e => e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: 'Spell: ' + plain(it.hint), correct: it.key.toUpperCase() })));
+  exOf('info').forEach(e => { let n = 0; e.people.forEach(p => p.rows.forEach(r => { if (r.ex) return; n++; L.push({ sec: String(exNo(e)), k: e.id + '-' + n, n: String(n), q: p.name + ' – ' + plain(r.q), correct: r.show || alts(r.key)[0] }); })); });
   return L;
 }
 
@@ -513,28 +506,31 @@ function paintMarks(){
     if (fix && !R.ok) fix.textContent = '→ ' + i.correct;
   });
 }
+// Meme cảm xúc của cô sau lần nộp 1 (chọn ngẫu nhiên 1 trong 2 ảnh của mức điểm, giữ cố định khi mở lại)
+const MEMES = { wow: 2, good: 2, ok: 2, oops: 2 };
+function memeOf(R){
+  const pct = R.total ? R.score / R.total : 1;
+  const tier = pct === 1 ? 'wow' : pct >= .8 ? 'good' : pct >= .5 ? 'ok' : 'oops';
+  if (!S.meme || !S.meme.startsWith(tier + '-')){ S.meme = tier + '-' + (1 + Math.floor(Math.random() * MEMES[tier])); save(); }
+  return `<img class="meme" src="img/meme/${S.meme}.gif" alt="">`;
+}
 function renderSummary(){
   const box = $('#summaryBox');
   if (S.phase === 'work'){ box.innerHTML = ''; return; }
-  const secs = R => LESSON.ex.filter(e => e.type === 'spell' || e.type === 'info').map(e => {
-    const ks = Object.keys(R.items).filter(k => k.startsWith(e.id + '-'));
-    const sc = ks.filter(k => R.items[k].ok).length;
-    return `<span class="sec${sc === ks.length ? ' full' : ''}">Ex ${e.id}: ${sc}/${ks.length}</span>`;
-  }).join('');
   if (S.phase === 'review' || S.phase === 'retry'){
-    box.innerHTML = `<div class="card summary retry"><div class="score">${S.r1.score}<span>/${S.r1.total}</span></div>
-      <div class="sumr"><div class="secs">${secs(S.r1)}</div>
-      <div class="muted small">Ô đỏ = câu sai.</div>
+    // sau lần 1: chỉ meme + điểm
+    box.innerHTML = `<div class="card summary retry">${memeOf(S.r1)}
+      <div class="sumr"><div class="score">${S.r1.score}<span>/${S.r1.total}</span></div>
       <div class="status" id="sendStatus"></div></div></div>`;
     updateStatus();
     return;
   }
-  const R = S.r2 || S.r1, pct = R.total ? R.score / R.total : 0;
-  box.innerHTML = `<div class="card summary"><div class="score">${R.score}<span>/${R.total}</span></div>
-    <div class="sumr"><div class="big">${R.score === R.total ? '🎉 Excellent! All correct!' : pct >= .8 ? '👏 Great job!' : pct >= .5 ? '💪 Good try!' : '📚 Let’s review the answers below.'}</div>
-    <div class="secs">${S.r2 ? `<span class="sec">1st try: ${S.r1.score}/${S.r1.total}</span><span class="sec full">2nd try: ${S.r2.score}/${S.r2.total}</span>` : '<span class="sec full">All correct the first time ⭐</span>'}${secs(R)}</div>
-    <div class="muted small">Câu sai có đáp án (→). Speaking: cô chấm sau.</div>
-    <div class="status" id="sendStatus"></div></div></div>`;
+  // xong: điểm + cô đã nhận bài + Let's review (đúng hết ngay lần 1 thì vẫn có meme)
+  const R = S.r2 || S.r1;
+  box.innerHTML = `<div class="card summary">${S.r2 ? '' : memeOf(S.r1)}
+    <div class="sumr"><div class="score">${R.score}<span>/${R.total}</span></div>
+    <div class="status" id="sendStatus"></div>
+    ${R.score < R.total ? '<div class="big">Let’s review the answers below 👇</div>' : ''}</div></div>`;
   updateStatus();
 }
 function paintAll(){ paintMarks(); paintReasons(); paintSpeak(); focusWrong(S.phase === 'retry'); renderTop(); renderSummary(); renderWho(); progress(); }
@@ -545,7 +541,7 @@ async function onSubmit(){
   if (S.phase === 'work'){
     const t = tasks();
     const noRec = t.filter(x => x.k === 'rec' && !x.done).map(x => x.q);
-    if (noRec.length){ alert('Em chưa ghi âm câu trả lời: ' + noRec.join(', ') + '.\nBài speaking phải ghi âm đủ mới nộp được nhé.'); document.getElementById('ex5') && document.getElementById('ex5').scrollIntoView({ behavior: 'smooth' }); return; }
+    if (noRec.length){ alert('Em chưa ghi âm câu trả lời: ' + noRec.join(', ') + '.\nBài speaking phải ghi âm đủ mới nộp được nhé.'); const sp = $('#ex' + exOf('speak')[0].id); if (sp) sp.scrollIntoView({ behavior: 'smooth' }); return; }
     const left = t.filter(x => !x.done).length;
     muteAway = true;
     const go = confirm(left ? `Còn ${left} câu chưa làm. Nộp luôn?` : 'Nộp bài nhé?');
@@ -581,9 +577,9 @@ function updateStatus(){
   const allSent = S.sent1 && (!S.r2 || S.sent2);
   const st = allSent && sendState !== 'sending' ? 'ok' : sendState;
   el.className = 'status ' + (st || '');
-  if (st === 'ok') el.innerHTML = S.phase === 'retry' || S.phase === 'review' ? '✅ Cô đã nhận bài lần 1.' : S.r2 ? '✅ Cô đã nhận được bài lần 2!' : '✅ Cô đã nhận được bài!';
+  if (st === 'ok') el.innerHTML = S.phase === 'retry' || S.phase === 'review' ? '' : '✅ Cô đã nhận được bài!';
   else if (!st) el.innerHTML = '';
-  else if (st === 'sending') el.innerHTML = '⏳ Đang gửi bài cho cô… (có file ghi âm nên đợi chút nhé)';
+  else if (st === 'sending') el.innerHTML = '⏳ Đang gửi bài…';
   else el.innerHTML = `⚠️ Chưa gửi được bài${sendErr ? ` (${esc(sendErr)})` : ''}. Em kiểm tra mạng rồi bấm: <button class="btn sm" type="button" id="resendBtn">Gửi lại</button>`;
   const rb = $('#resendBtn'); if (rb) rb.onclick = send;
 }
@@ -596,17 +592,17 @@ const base = () => ({ app: 'btvn', unit: 'KET', title: `KET ${LESSON.code} ${LES
 // speaking chỉ có ở mail lần 1 (kèm file ghi âm); mail lần 2 chỉ so sánh các câu chấm điểm
 function sectionsOf(items, nAudio){
   const out = LESSON.ex.filter(e => e.type === 'spell' || e.type === 'info').map(e => {
-    const its = items.filter(x => x.sec === e.id);
-    return { id: e.id, title: `Exercise ${e.id} · ${e.track ? 'Track ' + e.track + ' · ' : ''}${e.title}`, score: its.filter(x => x.ok).length, total: its.length, pending: false };
+    const id = String(exNo(e)), its = items.filter(x => x.sec === id);
+    return { id, title: `Exercise ${id} · ${e.track ? 'Track ' + e.track + ' · ' : ''}${e.title}`, score: its.filter(x => x.ok).length, total: its.length, pending: false };
   });
-  if (nAudio != null) exOf('speak').forEach(e => out.push({ id: e.id, title: `Exercise ${e.id} · ${e.title} (${nAudio} file ghi âm đính kèm)`, score: 0, total: 0, pending: true }));
+  if (nAudio != null) exOf('speak').forEach(e => out.push({ id: String(exNo(e)), title: `Exercise ${exNo(e)} · ${e.title} (${nAudio} file ghi âm đính kèm)`, score: 0, total: 0, pending: true }));
   return out;
 }
 function itemsOf(R, withSpeak){
   const items = itemList().map(i => ({ sec: i.sec, n: i.n, q: i.q, ans: R.items[i.k].ans, correct: i.correct, ok: R.items[i.k].ok }));
   if (withSpeak) exOf('speak').forEach(e => e.clips.forEach((c, j) => {
     const qk = e.id + '-' + (j + 1), meta = S.rec[qk];
-    items.push({ sec: e.id, n: 'Q' + (j + 1), q: c.q + ' (học sinh chỉ nghe, không thấy chữ)',
+    items.push({ sec: String(exNo(e)), n: 'Q' + (j + 1), q: c.q + ' (học sinh chỉ nghe, không thấy chữ)',
       ans: meta ? `🎙 ${fmtSec(meta.dur)} · nghe câu hỏi ${S.plays[qk] || 0} lần` : '(chưa ghi âm)', correct: 'cô chấm', ok: null });
   }));
   return items;
@@ -618,7 +614,7 @@ async function payload1(){
     if (blob) audios.push({ code: 'Q' + (j + 1), label: 'Q' + (j + 1) + ' – ' + e.clips[j].q, mime: meta.mime, ext: meta.ext, dur: meta.dur, b64: await blobToB64(blob) });
   }
   const extras = exOf('reasons').map(e => ({
-    label: `Exercise ${e.id} – Tự đánh giá: ${e.title}`,
+    label: `Exercise ${exNo(e)} – Tự đánh giá: ${e.title}`,
     text: 'Lý do đúng với em: ' + (S.pick.length ? S.pick.slice().sort((a, b) => a - b).map(n => n + '. ' + plain(e.reasons[n])).join(' | ') : '(không chọn)') +
       '\nLý do hay nhất ⭐: ' + (S.best ? S.best + '. ' + plain(e.reasons[S.best]) : '(không chọn)'),
   }));

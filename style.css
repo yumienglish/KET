@@ -185,3 +185,9 @@ input.txt:disabled{opacity:1;-webkit-text-fill-color:currentColor}
 body.retrying #summaryBox,body.retrying #whoBar,body.retrying .guide,body.retrying .src,body.retrying .how,body.retrying .vn{display:none}
 .steps{list-style:none;margin:0 0 8px;padding:0}
 .steps li{margin:4px 0}
+
+/* meme cảm xúc của cô sau lần nộp 1 */
+.meme{width:160px;max-width:42vw;height:auto;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.18);flex:none}
+.summary .sumr{min-width:140px}
+.guide h2{margin:0 0 8px;font-size:20px}
+.guide .vgrid{margin-top:10px}
