@@ -506,12 +506,21 @@ function paintMarks(){
     if (fix && !R.ok) fix.textContent = '→ ' + i.correct;
   });
 }
-// Meme cảm xúc của cô sau lần nộp 1 (chọn ngẫu nhiên 1 trong 2 ảnh của mức điểm, giữ cố định khi mở lại)
-const MEMES = { wow: 2, good: 2, ok: 2, oops: 2 };
+// Meme cảm xúc của cô sau lần nộp 1: img/meme/<mức>-<số>.gif. MEMES = số ảnh mỗi mức (thêm ảnh thì tăng số).
+// Chọn ngẫu nhiên, ưu tiên ảnh em chưa gặp ở các bài trước; giữ cố định khi mở lại trang.
+const MEMES = { wow: 7, good: 8, ok: 8, oops: 6 };
+const SEEN_KEY = 'ket-memes-seen';
 function memeOf(R){
   const pct = R.total ? R.score / R.total : 1;
   const tier = pct === 1 ? 'wow' : pct >= .8 ? 'good' : pct >= .5 ? 'ok' : 'oops';
-  if (!S.meme || !S.meme.startsWith(tier + '-')){ S.meme = tier + '-' + (1 + Math.floor(Math.random() * MEMES[tier])); save(); }
+  if (!S.meme || !S.meme.startsWith(tier + '-')){
+    const all = Array.from({ length: MEMES[tier] }, (_, i) => tier + '-' + (i + 1));
+    let seen = lsGet(SEEN_KEY); if (!Array.isArray(seen)) seen = [];
+    let pool = all.filter(m => !seen.includes(m));
+    if (!pool.length){ seen = seen.filter(m => !m.startsWith(tier + '-')); pool = all; }
+    S.meme = pool[Math.floor(Math.random() * pool.length)];
+    seen.push(S.meme); lsSet(SEEN_KEY, seen); save();
+  }
   return `<img class="meme" src="img/meme/${S.meme}.gif" alt="">`;
 }
 function renderSummary(){
