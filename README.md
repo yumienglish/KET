@@ -1,4 +1,4 @@
-# KET Self-study
+# KET Adventure 🚀
 
 Trang tự học KET (sách *Objective Key 2nd Edition*). Mỗi tuần mở 1 bài.
 

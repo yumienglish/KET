@@ -1,5 +1,5 @@
 /* =====================================================================
-   KET Self-study – DỮ LIỆU BÀI HỌC
+   KET Adventure – DỮ LIỆU BÀI HỌC
    ---------------------------------------------------------------------
    • OPEN_WEEK: tuần đang mở. Mỗi tuần thêm 1 bài vào LESSONS rồi tăng số này.
      Các bài tuần trước vẫn mở để học sinh xem lại.

@@ -1,4 +1,4 @@
-/* KET Self-study – giao diện, chấm điểm, làm lại câu sai, ghi âm, gửi bài */
+/* KET Adventure – giao diện, chấm điểm, làm lại câu sai, ghi âm, gửi bài */
 'use strict';
 
 /* ============ TIỆN ÍCH ============ */
@@ -80,18 +80,57 @@ const LESSON = WEEK_NO && WEEK_NO <= OPEN_WEEK ? LESSONS[WEEK_NO] : null;
 const ME_KEY = 'ket-me';
 const storeKey = w => 'ket-w' + w;
 
+// Câu chào trang chủ: mỗi lần mở đổi 1 câu (không lặp lại câu lần trước)
+const HI_LINES = [
+  'Every new word is a new superpower. 💪',
+  'Your brain loves new words. Let’s feed it! 🧠',
+  'Small steps every week = BIG English! 🚀',
+  'Mistakes mean you’re trying. Keep going! 🌱',
+  'You’re getting better every single week. 📈',
+  'Ready for a new adventure? Let’s go! 🎒',
+  'Today’s you is smarter than yesterday’s you. ✨',
+  'Listen it, say it, own it! 🎤',
+  'Curious minds go far. Let’s explore! 🔭',
+  'One more step towards your KET star. ⭐',
+];
+function hiLine(){
+  let last = lsGet('ket-hi'), i;
+  do { i = Math.floor(Math.random() * HI_LINES.length); } while (HI_LINES.length > 1 && i === last);
+  lsSet('ket-hi', i);
+  return HI_LINES[i];
+}
+// Sao thành tích của 1 bài đã xong: ≥90% → 3 sao, ≥70% → 2 sao, còn lại 1 sao
+function starsOf(s){
+  if (!s || s.phase !== 'done') return 0;
+  const r = s.r2 || s.r1; if (!r || !r.total) return 3;
+  const p = r.score / r.total;
+  return p >= .9 ? 3 : p >= .7 ? 2 : 1;
+}
+const starRow = n => [1, 2, 3].map(i => `<span class="${i <= n ? '' : 'off'}">⭐</span>`).join('');
+
 function renderHome(){
-  document.title = 'KET Self-study';
-  $('#heroSub').textContent = 'Cambridge KET · Objective Key';
+  document.title = 'KET Adventure 🚀';
+  $('#heroSub').textContent = 'Explore · Listen · Speak · Shine ✨';
   const weeks = Object.keys(LESSONS).map(Number).filter(w => w <= OPEN_WEEK).sort((a, b) => b - a);
   const next = LESSONS[OPEN_WEEK + 1];
-  $('#app').innerHTML = `<section class="card">
-      <h2 style="margin:0 0 4px">👋 Hello!</h2>
-      <p class="muted" style="margin:0">Mỗi tuần 1 bài. Chọn bài của tuần này nhé.</p>
+  const me = lsGet(ME_KEY) || {};
+  const first = String(me.name || '').trim().split(/\s+/).pop();
+  let stars = 0, words = 0;
+  weeks.forEach(w => { const n = starsOf(lsGet(storeKey(w))); stars += n; if (n) words += (LESSONS[w].newWords || []).length; });
+  $('#app').innerHTML = `<section class="card hi">
+      <h2>Hi ${first ? esc(first) : 'superstar'}! 🌟</h2>
+      <p class="hiline">${hiLine()}</p>
+      <div class="stats">
+        <div class="stat"><b>⭐ ${stars}</b><span>stars</span></div>
+        <div class="stat"><b>📒 ${words}</b><span>new words</span></div>
+        <div class="stat"><b>🏁 ${weeks.filter(w => starsOf(lsGet(storeKey(w)))).length}</b><span>adventures</span></div>
+      </div>
+      ${stars ? '' : '<p class="muted small" style="margin:10px 0 0">Your first stars are waiting for you! ⭐</p>'}
     </section>
     ${weeks.map(w => {
       const L = LESSONS[w], s = lsGet(storeKey(w)) || {};
-      const st = s.phase === 'done' ? `<span class="tag ok">✅ Done${s.r2 ? ' · ' + s.r2.score + '/' + s.r2.total : s.r1 ? ' · ' + s.r1.score + '/' + s.r1.total : ''}</span>`
+      const r = s.r2 || s.r1;
+      const st = s.phase === 'done' ? `<span class="tag ok stars">${starRow(starsOf(s))}${r ? ' ' + r.score + '/' + r.total : ''}</span>`
         : s.phase === 'retry' || s.phase === 'review' ? '<span class="tag warn">✏️ Làm lại câu sai</span>'
         : s.startedAt ? '<span class="tag">⏳ In progress</span>' : '<span class="tag new">🆕 New</span>';
       return `<a class="card lesson" href="?w=${w}">
@@ -100,7 +139,7 @@ function renderHome(){
           <div class="ln">${esc(L.title)}</div><div class="ls">${esc(L.unit)}</div></div>
         <div>${st}</div></a>`;
     }).join('')}
-    ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Coming next week</div></div></div>` : ''}`;
+    ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Next adventure unlocks soon!</div></div></div>` : ''}`;
 }
 
 /* ============ TRẠNG THÁI BÀI ============ */
