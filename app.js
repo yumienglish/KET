@@ -108,6 +108,53 @@ function starsOf(s){
 }
 const starRow = n => [1, 2, 3].map(i => `<span class="${i <= n ? '' : 'off'}">⭐</span>`).join('');
 
+/* ============ AVATAR: chọn hình có sẵn hoặc ảnh trong máy (chỉ lưu trên máy em, không gửi đi) ============ */
+const AV_KEY = 'ket-avatar';
+const AVATARS = ['🦊', '🐼', '🐯', '🐨', '🦄', '🐸', '🐱', '🐶', '🐵', '🦁', '🐰', '🐧', '🐙', '🦖', '🐝', '🐳', '🦋', '🐲', '👾', '🤖', '🐻', '🦉', '🐬', '🦒'];
+const avGet = () => { const a = lsGet(AV_KEY); return a && (a.e || (typeof a.img === 'string' && a.img.startsWith('data:image/'))) ? a : null; };
+function avHTML(cls = ''){
+  const a = avGet();
+  return `<span class="av ${cls}">${a && a.img ? `<img src="${esc(a.img)}" alt="">` : a ? a.e : '🙂'}</span>`;
+}
+function avPicker(){
+  const a = avGet() || {};
+  return `<div class="avpick">
+      <label class="avopt photo${a.img ? ' on' : ''}" title="My photo">${a.img ? `<img src="${esc(a.img)}" alt="">` : '📷'}<small>My photo</small><input type="file" accept="image/*" hidden data-avfile></label>
+      ${AVATARS.map(e => `<button type="button" class="avopt${a.e === e ? ' on' : ''}" data-av="${e}">${e}</button>`).join('')}
+    </div>`;
+}
+// thu ảnh về hình vuông 200px (cắt giữa) để nhẹ, lưu được trong máy
+function shrinkImg(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const w = im.naturalWidth, h = im.naturalHeight, s = Math.min(w, h);
+      URL.revokeObjectURL(url); if (!s) return rej(new Error('empty'));
+      const c = document.createElement('canvas'); c.width = c.height = 200;
+      c.getContext('2d').drawImage(im, (w - s) / 2, (h - s) / 2, s, s, 0, 0, 200, 200);
+      res(c.toDataURL('image/jpeg', .85));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad image')); };
+    im.src = url;
+  });
+}
+// gắn sự kiện cho 1 ô chọn avatar; onChange chạy sau khi đã lưu
+function bindAvPicker(box, onChange){
+  box.innerHTML = avPicker();
+  box.onclick = ev => {
+    const b = ev.target.closest('[data-av]'); if (!b) return;
+    lsSet(AV_KEY, { e: b.dataset.av }); box.innerHTML = avPicker(); onChange();
+  };
+  box.onchange = async ev => {
+    const f = ev.target.closest('[data-avfile]'); if (!f || !f.files || !f.files[0]) return;
+    try {
+      lsSet(AV_KEY, { img: await shrinkImg(f.files[0]) });
+      if (!avGet()) throw new Error('not saved');
+      box.innerHTML = avPicker(); onChange();
+    } catch (e){ alert('Không mở được ảnh này, em chọn ảnh khác nhé.'); }
+  };
+}
+
 function renderHome(){
   document.title = 'KET Adventure 🚀';
   $('#heroSub').textContent = 'Explore · Listen · Speak · Shine ✨';
@@ -118,6 +165,8 @@ function renderHome(){
   let stars = 0, words = 0;
   weeks.forEach(w => { const n = starsOf(lsGet(storeKey(w))); stars += n; if (n) words += (LESSONS[w].newWords || []).length; });
   $('#app').innerHTML = `<section class="card hi">
+      <button type="button" class="avbtn" id="avBtn" title="Change avatar">${avHTML('big')}<span class="avedit">✏️</span></button>
+      <div id="avBox" class="avbox" hidden></div>
       <h2>Hi ${first ? esc(first) : 'superstar'}! 🌟</h2>
       <p class="hiline">${hiLine()}</p>
       <div class="stats">
@@ -140,6 +189,8 @@ function renderHome(){
         <div>${st}</div></a>`;
     }).join('')}
     ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Next adventure unlocks soon!</div></div></div>` : ''}`;
+  const box = $('#avBox');
+  $('#avBtn').onclick = () => { box.hidden = !box.hidden; if (!box.hidden) bindAvPicker(box, () => { $('#avBtn .av').outerHTML = avHTML('big'); }); };
 }
 
 /* ============ TRẠNG THÁI BÀI ============ */
@@ -348,6 +399,7 @@ function buildLesson(){
       <p class="muted" style="margin:0">Điền tên và lớp rồi bấm <b>Start</b>. Nhớ đeo tai nghe hoặc bật loa nhé 🎧</p>
       <div class="field"><label for="inName">Full name</label><input id="inName" autocomplete="name" placeholder="e.g. Nguyễn Minh Anh"></div>
       <div class="field"><label for="inCls">Class</label><input id="inCls" placeholder="e.g. KET01"></div>
+      <div class="field"><label>Choose your avatar</label><div id="avStart" class="avbox"></div></div>
       <div class="err" id="startErr"></div>
       <button class="btn" id="startBtn" type="button">Start →</button>
     </section>
@@ -387,6 +439,7 @@ function buildLesson(){
   paintReasons(); paintSpeak(); paintCounts();
   const me = lsGet(ME_KEY) || {};
   $('#inName').value = S.name || me.name || ''; $('#inCls').value = S.cls || me.cls || '';
+  bindAvPicker($('#avStart'), () => { if ($('#startErr').textContent.includes('avatar')) $('#startErr').textContent = ''; });
   $('#startBtn').addEventListener('click', onStart);
   ['inName', 'inCls'].forEach(id => $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') onStart(); }));
 }
@@ -404,6 +457,7 @@ function onStart(){
   const n = $('#inName').value.trim(), c = $('#inCls').value.trim();
   if (n.length < 2){ $('#startErr').textContent = 'Em hãy nhập họ và tên.'; return; }
   if (!c){ $('#startErr').textContent = 'Em hãy nhập lớp.'; return; }
+  if (!avGet()){ $('#startErr').textContent = 'Em hãy chọn avatar nhé.'; $('#avStart').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   $('#startErr').textContent = '';
   S.name = n.slice(0, 80); S.cls = c.slice(0, 30);
   if (!S.startedAt) S.startedAt = new Date().toISOString();
@@ -412,7 +466,7 @@ function onStart(){
 }
 function renderWho(){
   const when = S.phase === 'done' ? (S.r2 || S.r1).at : null;
-  $('#whoBar').innerHTML = `<span>👤 <b>${esc(S.name)}</b> · Class <b>${esc(S.cls)}</b></span>` +
+  $('#whoBar').innerHTML = `<span class="whoname">${avHTML()} <b>${esc(S.name)}</b> · Class <b>${esc(S.cls)}</b></span>` +
     (when ? `<span class="muted small">Submitted ${new Date(when).toLocaleString('vi-VN')}</span>`
       : S.phase === 'work' ? '<button class="linkbtn" type="button" id="editName">Sửa tên / lớp</button>' : '');
   const b = $('#editName'); if (b) b.onclick = () => { $('#work').hidden = true; $('#bar').hidden = true; $('#start').hidden = false; $('#inName').focus(); };
