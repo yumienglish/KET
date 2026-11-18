@@ -50,13 +50,14 @@ const VOCAB = {
   'meet':           { w: 'meet', ipa: '/miːt/', vi: 'gặp, gặp nhau' },
   'special':        { w: 'special', ipa: '/ˈspeʃəl/', vi: 'đặc biệt' },
   'river':          { w: 'river', ipa: '/ˈrɪvə/', vi: 'dòng sông' },
+  'help sb with sth': { w: 'help someone with something', ipa: '/help ˈsʌmwʌn wɪð ˈsʌmθɪŋ/', vi: 'giúp ai làm việc gì (VD: help me with my homework – giúp mình làm bài tập)' },
 };
 
 /* ---------- BÀI HỌC THEO TUẦN ---------- */
 const LESSONS = {
   1: {
     code: '1.1', title: 'Friends for ever', unit: 'Unit 1 · Friends',
-    newWords: ['be there for you', 'alone', 'text messages', 'tell lies', 'forget', 'chat', 'for hours', 'fridge', 'without', 'laugh', 'special'],
+    newWords: ['be there for you', 'alone', 'text messages', 'tell lies', 'forget', 'chat', 'for hours', 'help sb with sth', 'without', 'special'],
     ex: [
       /* Exercise 1 – tự đánh giá, chạm vào tranh (sách: Ex 1) */
       { id: '1', type: 'reasons',
@@ -79,7 +80,7 @@ const LESSONS = {
           7: 'It’s great to go on the PlayStation {{together}}.',
           8: 'You can {{chat}} about football {{for hours}}.',
           9: 'Your best friend has your {{favourite}} ice cream in the {{fridge}}.',
-          10: 'They help you with your homework.',
+          10: 'They {{help sb with sth|help you with}} your homework.',
           11: '{{party|Parties}} {{without}} your friends aren’t good!',
           12: 'Friends make you {{laugh}}.',
         } },
