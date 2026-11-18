@@ -174,6 +174,7 @@ function renderHome(){
         <div class="stat"><b>📒 ${words}</b><span>new words</span></div>
         <div class="stat"><b>🏁 ${weeks.filter(w => starsOf(lsGet(storeKey(w)))).length}</b><span>adventures</span></div>
       </div>
+      <div class="lvl"><span class="lvn">🏆 Level ${1 + Math.floor(stars / 6)}</span><div class="lvbar"><i style="width:${Math.round(stars % 6 / 6 * 100)}%"></i></div><span class="lvx">⭐ ${stars % 6}/6</span></div>
       ${stars ? '' : '<p class="muted small" style="margin:10px 0 0">Your first stars are waiting for you! ⭐</p>'}
     </section>
     ${weeks.map(w => {
@@ -183,10 +184,10 @@ function renderHome(){
         : s.phase === 'retry' || s.phase === 'review' ? '<span class="tag warn">✏️ Làm lại câu sai</span>'
         : s.startedAt ? '<span class="tag">⏳ In progress</span>' : '<span class="tag new">🆕 New</span>';
       return `<a class="card lesson" href="?w=${w}">
-        <div class="lnum">${esc(L.code)}</div>
+        <div class="lnum c${w % 4}">${esc(L.code)}</div>
         <div class="linfo"><div class="lt">Week ${w}${w === OPEN_WEEK ? ' · <b class="now">This week</b>' : ''}</div>
           <div class="ln">${esc(L.title)}</div><div class="ls">${esc(L.unit)}</div></div>
-        <div>${st}</div></a>`;
+        <div class="lend">${st}${s.phase === 'done' ? '' : '<span class="play">▶</span>'}</div></a>`;
     }).join('')}
     ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Next adventure unlocks soon!</div></div></div>` : ''}`;
   const box = $('#avBox');
@@ -557,8 +558,17 @@ function focusWrong(on){
     $$(ITEM_SEL, sec).forEach(c => { if (!els.some(el => c.contains(el))) c.classList.add('rt-hide'); });
   });
 }
+// Thanh audio dính đầu màn hình: nằm ngay dưới thanh ghim "Làm lại câu sai" (nếu có)
+function setStick(){
+  const tb = $('#topbar'), h = tb && !tb.hidden ? tb.offsetHeight + 16 : 0;
+  document.documentElement.style.setProperty('--stick', (h || 8) + 'px');
+}
+window.addEventListener('resize', setStick);
 function renderTop(){
   const tb = $('#topbar'); if (!tb) return;
+  try { renderTopIn(tb); } finally { setStick(); }
+}
+function renderTopIn(tb){
   if (S.phase !== 'review' && S.phase !== 'retry'){ tb.hidden = true; return; }
   tb.hidden = false;
   if (S.phase === 'review'){
