@@ -20,3 +20,7 @@ Link cho học sinh: https://yumienglish.github.io/KET/
 Dùng chung máy chủ Code.gs với các trang BTVN (unit `KET`):
 - **Lần 1**: gửi mail kèm các file ghi âm speaking và phần tự đánh giá.
 - **Lần 2** (học sinh làm lại câu sai): gửi mail so sánh Lần 1 → Lần 2. Thời gian làm và số lần rời trang được tính riêng cho từng lần.
+
+## Giao diện game (fun.js)
+- Chủ đề vũ trụ: bản đồ hành tinh, 8 huy hiệu, Quick review (ôn từ 90 giây), âm thanh + pháo giấy, câu chọc/khen của cô (TEASE trong app.js).
+- Hình vẽ ChatGPT: làm theo `ai-images/PROMPTS-HOME.md`. Cắt xong vào `img/ui/*.webp` thì đổi `ART = true` trong fun.js. Khi `ART = false`, web dùng emoji.

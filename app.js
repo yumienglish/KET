@@ -158,13 +158,12 @@ function bindAvPicker(box, onChange){
 function renderHome(){
   document.title = 'KET Adventure 🚀';
   $('#heroSub').textContent = 'Explore · Listen · Speak · Shine ✨';
-  const weeks = Object.keys(LESSONS).map(Number).filter(w => w <= OPEN_WEEK).sort((a, b) => b - a);
-  const next = LESSONS[OPEN_WEEK + 1];
   const me = lsGet(ME_KEY) || {};
   const first = String(me.name || '').trim().split(/\s+/).pop();
-  let stars = 0, words = 0;
-  weeks.forEach(w => { const n = starsOf(lsGet(storeKey(w))); stars += n; if (n) words += (LESSONS[w].newWords || []).length; });
+  const d = gameData(), { stars, words, done } = d; // fun.js
+  const lv = 1 + Math.floor(stars / 6), xp = stars % 6;
   $('#app').innerHTML = `<section class="card hi">
+      ${uimg('mascot-1', '🐶', 'hmas')}
       <button type="button" class="avbtn" id="avBtn" title="Change avatar">${avHTML('big')}<span class="avedit">✏️</span></button>
       <div id="avBox" class="avbox" hidden></div>
       <h2>Hi ${first ? esc(first) : 'superstar'}! 🌟</h2>
@@ -172,26 +171,17 @@ function renderHome(){
       <div class="stats">
         <div class="stat"><b>⭐ ${stars}</b><span>stars</span></div>
         <div class="stat"><b>📒 ${words}</b><span>new words</span></div>
-        <div class="stat"><b>🏁 ${weeks.filter(w => starsOf(lsGet(storeKey(w)))).length}</b><span>adventures</span></div>
+        <div class="stat"><b>🪐 ${done}</b><span>planets</span></div>
       </div>
-      <div class="lvl"><span class="lvn">🏆 Level ${1 + Math.floor(stars / 6)}</span><div class="lvbar"><i style="width:${Math.round(stars % 6 / 6 * 100)}%"></i></div><span class="lvx">⭐ ${stars % 6}/6</span></div>
+      <div class="lvl"><span class="lvn">🏆 Level ${lv}</span><div class="lvbar"><i style="width:${Math.round(xp / 6 * 100)}%"></i></div><span class="lvx">⭐ ${xp}/6</span></div>
       ${stars ? '' : '<p class="muted small" style="margin:10px 0 0">Your first stars are waiting for you! ⭐</p>'}
     </section>
-    ${weeks.map(w => {
-      const L = LESSONS[w], s = lsGet(storeKey(w)) || {};
-      const r = s.r2 || s.r1;
-      const st = s.phase === 'done' ? `<span class="tag ok stars">${starRow(starsOf(s))}${r ? ' ' + r.score + '/' + r.total : ''}</span>`
-        : s.phase === 'retry' || s.phase === 'review' ? '<span class="tag warn">✏️ Làm lại câu sai</span>'
-        : s.startedAt ? '<span class="tag">⏳ In progress</span>' : '<span class="tag new">🆕 New</span>';
-      return `<a class="card lesson" href="?w=${w}">
-        <div class="lnum c${w % 4}">${esc(L.code)}</div>
-        <div class="linfo"><div class="lt">Week ${w}${w === OPEN_WEEK ? ' · <b class="now">This week</b>' : ''}</div>
-          <div class="ln">${esc(L.title)}</div><div class="ls">${esc(L.unit)}</div></div>
-        <div class="lend">${st}${s.phase === 'done' ? '' : '<span class="play">▶</span>'}</div></a>`;
-    }).join('')}
-    ${next ? `<div class="card lesson locked"><div class="lnum">🔒</div><div class="linfo"><div class="lt">Week ${OPEN_WEEK + 1}</div><div class="ln">Next adventure unlocks soon!</div></div></div>` : ''}`;
+    ${reviewCard(d)}
+    ${mapHtml(d)}
+    ${badgesHtml(d)}`;
   const box = $('#avBox');
-  $('#avBtn').onclick = () => { box.hidden = !box.hidden; if (!box.hidden) bindAvPicker(box, () => { $('#avBtn .av').outerHTML = avHTML('big'); }); };
+  $('#avBtn').onclick = () => { box.hidden = !box.hidden; if (!box.hidden) bindAvPicker(box, () => { $('#avBtn .av').outerHTML = avHTML('big'); const m = $('#map .me'); if (m) m.innerHTML = avHTML(); }); };
+  afterHome();
 }
 
 /* ============ TRẠNG THÁI BÀI ============ */
@@ -637,6 +627,7 @@ function renderSummary(){
     // sau lần 1: chỉ meme + điểm
     box.innerHTML = `<div class="card summary retry">${memeOf(S.r1)}
       <div class="sumr"><div class="score">${S.r1.score}<span>/${S.r1.total}</span></div>
+      ${teaseLine1()}
       <div class="status" id="sendStatus"></div></div></div>`;
     updateStatus();
     return;
@@ -645,6 +636,7 @@ function renderSummary(){
   const R = S.r2 || S.r1;
   box.innerHTML = `<div class="card summary">${S.r2 ? '' : memeOf(S.r1)}
     <div class="sumr"><div class="score">${R.score}<span>/${R.total}</span></div>
+    ${S.r2 ? praiseLine2() : ''}
     <div class="status" id="sendStatus"></div>
     ${R.score < R.total ? '<div class="big">Let’s review the answers below 👇</div>' : ''}</div></div>`;
   updateStatus();
@@ -672,16 +664,85 @@ function modal(msg, yes, no){
     m.hidden = false; n.focus();
   });
 }
+/* ============ CÂU CHỌC / KHEN CỦA CÔ (tiếng Việt, hợp tuổi 12, chọn ngẫu nhiên, không lặp câu vừa dùng) ============ */
+const TEASE = {
+  empty: [ // nộp khi còn trống > 25%
+    'Mới làm có <b>{x}/{n}</b> câu mà đã muốn nộp rồi á? Tên lửa chưa đổ đủ xăng đâu em 🚀⛽',
+    'Còn <b>{e} câu</b> trống kìa! Mấy câu đó đang buồn vì bị bỏ rơi đó 🥺',
+    'Ơ, mới khởi động thôi mà! Còn <b>{e} câu</b> đang chờ em nè 👀',
+    'Bỏ trống nhiều thế này cô chấm bằng… phép thuật à? 🪄 Làm tiếp nha!'],
+  early: [ // nộp khi chưa đủ 3 phút
+    'Mới <b>{m} phút</b> đã xong? Nhanh như tia chớp ⚡ Nhưng soát lại thêm <b>{r} phút</b> nữa nhé!',
+    'Em là siêu nhân tốc độ à? 🦸 Kiểm tra lại thêm <b>{r} phút</b> rồi mới nộp được nha.',
+    'Từ từ thôi phi hành gia ơi! 🧑‍🚀 Còn <b>{r} phút</b> nữa mới được nộp.',
+    'Nhanh quá cô theo không kịp 😵 Nghe lại audio, xem lại bài thêm <b>{r} phút</b> nhé!'],
+  away: [ // quay lại trang sau hơn 5 lần rời trang
+    'Em đi đâu đó? Cô thấy hết nha 👀',
+    'Bài ở đây nè, đừng chạy đi đâu nữa! 🏃',
+    'Hỏi Google hoài là não không lớn đâu nha 🧠',
+    'Cô đang đếm số lần em rời trang đó nha 🕵️',
+    'Tập trung nào phi hành gia! Tên lửa sắp cất cánh rồi 🚀'],
+  low1: [ // điểm lần 1 dưới 70%
+    '{s}/{t}… Hơi “toang” một chút rồi 😬 Làm lại câu sai cho cô xem nào!',
+    'Hmm, {s}/{t}. Cô biết em làm được tốt hơn mà! 💪',
+    'Sai {w} câu rồi nè. Nghe lại thật kĩ rồi phục thù nha ⚔️',
+    'Điểm này chưa phải sức của em đâu. Chứng minh cho cô xem đi! 😤'],
+  fixAll: [ // lần 2: sửa đúng hết
+    'Sửa đúng hết luôn! Đỉnh quá trời đỉnh 🚀',
+    'Xuất sắc! Em đúng là ngôi sao sáng nhất dải ngân hà ⭐',
+    'Wow, không sót câu nào! Cô tự hào về em lắm 🥹🏆',
+    'Quá xịn! Cô tặng em 1000 like 👍🔥'],
+  fixSome: [ // lần 2: sửa đúng một phần
+    'Sửa đúng {f} câu rồi, giỏi lắm! Mấy câu còn lại cô giảng trên lớp nha 💪',
+    'Có cố gắng là có tiến bộ: {f} câu đã lên xanh rồi đó 🌱',
+    'Không bỏ cuộc là siêu anh hùng! {f} câu đã được giải cứu 🦸',
+    'Đang lên level đó nha! Tuần sau cố thêm chút nữa 📈'],
+  fixNone: [ // lần 2: chưa sửa đúng câu nào
+    'Chưa sửa đúng câu nào nhưng em đã dám thử lại, tốt lắm! Xem đáp án bên dưới nha 👇',
+    'Hơi khó một chút ha 😅 Đọc kĩ đáp án rồi tuần sau làm tốt hơn nhé!'],
+  nofix: [ // bấm Nộp lần 2 khi chưa sửa câu nào
+    'Em gửi cô 2 bài giống y chang nhau làm chi? 🙄',
+    'Ủa, chưa sửa câu nào mà nộp lần 2 rồi á? 😏',
+    'Bài này giống bài lúc nãy như 2 giọt nước luôn 👯'],
+};
+function tease(kind, vars = {}){
+  const list = TEASE[kind], last = lsGet('ket-tease') || {};
+  let i; do { i = Math.floor(Math.random() * list.length); } while (list.length > 1 && i === last[kind]);
+  last[kind] = i; lsSet('ket-tease', last);
+  return list[i].replace(/\{(\w)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : '');
+}
+// dòng nhắc nổi ở đầu màn hình, tự tắt
+function toast(html, ms = 4000){
+  let t = $('#toast');
+  if (!t){ document.body.insertAdjacentHTML('beforeend', '<div class="toast" id="toast" role="status" hidden></div>'); t = $('#toast'); }
+  t.innerHTML = html; t.hidden = false; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toast.tm); toast.tm = setTimeout(() => { t.hidden = true; }, ms);
+}
+// Lần 1 dưới 70% → câu chọc; lần 2 → câu khen theo số câu đã sửa đúng. Giữ cố định khi mở lại trang.
+function teaseLine1(){
+  const R = S.r1; if (!R || !R.total || R.score / R.total >= .7) return '';
+  if (!S.tease1){ S.tease1 = tease('low1', { s: R.score, t: R.total, w: R.total - R.score }); save(); }
+  return `<div class="tease">${S.tease1}</div>`;
+}
+function praiseLine2(){
+  if (!S.tease2){
+    const ks = Object.keys(S.r1.items).filter(k => !S.r1.items[k].ok);
+    const f = ks.filter(k => S.r2.items[k] && S.r2.items[k].ok).length;
+    S.tease2 = tease(f === ks.length ? 'fixAll' : f ? 'fixSome' : 'fixNone', { f }); save();
+  }
+  return `<div class="tease good">${S.tease2}</div>`;
+}
+
 // Lần 1: chặn khi làm quá ít / quá nhanh, rồi hỏi lại
 async function guard1(left, total){
   if (modalOpen()) return false;
   if (left > total * MAX_EMPTY){
-    await modal(`📝 Em mới làm <b>${total - left}/${total}</b> câu.<br>Em làm tiếp rồi mới nộp bài nhé! 💪`, '', 'OK, em làm tiếp');
+    await modal(`📝 ${tease('empty', { x: total - left, n: total, e: left })}`, '', 'Dạ, em làm tiếp 😅');
     return false;
   }
   const mins = S.startedAt ? (Date.now() - new Date(S.startedAt)) / 60000 : MIN_MINUTES;
   if (mins < MIN_MINUTES){
-    await modal(`🎧 Em làm nhanh quá!<br>Kiểm tra lại bài thêm <b>${Math.ceil(MIN_MINUTES - mins)} phút</b> nữa rồi mới nộp được nhé.`, '', 'OK, em kiểm tra lại');
+    await modal(`⏱️ ${tease('early', { m: Math.max(1, Math.floor(mins)), n: total, r: Math.ceil(MIN_MINUTES - mins) })}`, '', 'Dạ, em soát lại 🧐');
     return false;
   }
   const go = await modal(left ? `Em còn <b>${left} câu</b> chưa làm.<br>Em chắc chắn muốn nộp bài cho cô?` : 'Em đã kiểm tra kĩ chưa?<br>Nộp bài cho cô nhé?', 'Nộp bài', 'Làm tiếp ✏️');
@@ -691,7 +752,7 @@ async function guard1(left, total){
 async function guard2(){
   if (modalOpen()) return false;
   const w = wrongKeys().length, c = fixedCount();
-  if (!c){ await modal('✏️ Em chưa sửa câu nào.<br>Sửa các câu sai rồi mới nộp lần 2 nhé!', '', 'OK, em sửa bài'); return false; }
+  if (!c){ await modal(`✏️ ${tease('nofix')}<br><small>Sửa các câu sai rồi mới nộp lần 2 nhé!</small>`, '', 'Dạ, em sửa bài 😅'); return false; }
   const go = await modal(`Em đã sửa <b>${c}/${w}</b> câu sai.<br>Nộp lần 2 cho cô nhé? Nộp xong sẽ hiện đáp án, không sửa được nữa.`, 'Nộp lần 2', 'Sửa tiếp ✏️');
   return go && S.phase === 'retry';
 }
@@ -726,7 +787,7 @@ async function onSubmit(){
     S.sid = makeSid();
     S.phase = g.score === g.total ? 'done' : 'review';
     save(); paintAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
-    send();
+    send(); afterSubmit();
     return;
   }
   if (S.phase === 'retry'){
@@ -738,7 +799,7 @@ async function onSubmit(){
     const ks = Object.keys(g.items);
     S.r2 = { at: new Date().toISOString(), leaves: S.leaves || 0, score: ks.filter(k => g.items[k].ok).length, total: ks.length, items: g.items };
     S.phase = 'done'; save(); paintAll(); window.scrollTo({ top: 0, behavior: 'smooth' });
-    send();
+    send(); afterSubmit();
   }
 }
 
@@ -830,13 +891,17 @@ let away = false, muteAway = false;
 function releaseAway(){ setTimeout(() => { muteAway = false; away = false; }, 800); }
 const tracking = () => S && !!S.startedAt && (S.phase === 'work' || S.phase === 'retry') && $('#work') && !$('#work').hidden;
 function goAway(){ if (muteAway || away || REC || !tracking()) return; away = true; S.leaves = (S.leaves || 0) + 1; save(); }
-function comeBack(){ if (!document.hidden && document.hasFocus()) away = false; }
+function comeBack(){
+  if (document.hidden || !document.hasFocus()) return;
+  const was = away; away = false;
+  if (was && tracking() && (S.leaves || 0) > 5) toast(`🕵️ ${tease('away')} <small>(rời trang ${S.leaves} lần)</small>`);
+}
 document.addEventListener('visibilitychange', () => document.hidden ? goAway() : comeBack());
 window.addEventListener('blur', goAway);
 window.addEventListener('focus', comeBack);
 
 /* ============ KHỞI ĐỘNG ============ */
-(function boot(){
+function boot(){
   if (!LESSON){
     $('#bar').hidden = true;
     if (WEEK_NO) { $('#app').innerHTML = '<div class="card">🔒 Bài này chưa mở. <a href="./">← Quay lại danh sách bài</a></div>'; return; }
@@ -851,4 +916,5 @@ window.addEventListener('focus', comeBack);
   if (S.startedAt && S.name) showWork();
   paintAll();
   if (S.r1 && (!S.sent1 || (S.r2 && !S.sent2))) send(); // lần trước chưa gửi được → gửi lại
-})();
+}
+document.addEventListener('DOMContentLoaded', boot); // chờ fun.js nạp xong
