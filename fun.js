@@ -7,7 +7,7 @@ const SND_KEY = 'ket-sound', BADGE_KEY = 'ket-badges', REV_KEY = 'ket-review';
 
 /* ---------- Hình vẽ ChatGPT (img/ui/*.webp) ----------
    ART = false: chưa có hình → dùng emoji. Khi đã cắt hình xong vào img/ui/ thì đổi thành true. */
-const ART = false;
+const ART = true;
 function uimg(name, emo, cls){
   if (!ART) return `<span class="${cls} emo">${emo}</span>`;
   return `<img class="${cls}" src="img/ui/${name}.webp" alt="" onerror="this.outerHTML='<span class=&quot;${cls} emo&quot;>${emo}</span>'">`;

@@ -111,16 +111,19 @@ const starRow = n => [1, 2, 3].map(i => `<span class="${i <= n ? '' : 'off'}">�
 /* ============ AVATAR: chọn hình có sẵn hoặc ảnh trong máy (chỉ lưu trên máy em, không gửi đi) ============ */
 const AV_KEY = 'ket-avatar';
 const AVATARS = ['🦊', '🐼', '🐯', '🐨', '🦄', '🐸', '🐱', '🐶', '🐵', '🦁', '🐰', '🐧', '🐙', '🦖', '🐝', '🐳', '🦋', '🐲', '👾', '🤖', '🐻', '🦉', '🐬', '🦒'];
+// Avatar hình vẽ ChatGPT: img/ui/av-1..16.webp ứng với 16 emoji đầu của AVATARS (cùng thứ tự). AV_ART = false → dùng emoji.
+const AV_ART = true, AV_PICS = 16;
+const avPic = e => { const i = AVATARS.indexOf(e); return AV_ART && i >= 0 && i < AV_PICS ? `<img src="img/ui/av-${i + 1}.webp" alt="${e}">` : e; };
 const avGet = () => { const a = lsGet(AV_KEY); return a && (a.e || (typeof a.img === 'string' && a.img.startsWith('data:image/'))) ? a : null; };
 function avHTML(cls = ''){
   const a = avGet();
-  return `<span class="av ${cls}">${a && a.img ? `<img src="${esc(a.img)}" alt="">` : a ? a.e : '🙂'}</span>`;
+  return `<span class="av ${cls}">${a && a.img ? `<img src="${esc(a.img)}" alt="">` : a ? avPic(a.e) : '🙂'}</span>`;
 }
 function avPicker(){
   const a = avGet() || {};
   return `<div class="avpick">
       <label class="avopt photo${a.img ? ' on' : ''}" title="My photo">${a.img ? `<img src="${esc(a.img)}" alt="">` : '📷'}<small>My photo</small><input type="file" accept="image/*" hidden data-avfile></label>
-      ${AVATARS.map(e => `<button type="button" class="avopt${a.e === e ? ' on' : ''}" data-av="${e}">${e}</button>`).join('')}
+      ${(AV_ART ? AVATARS.slice(0, AV_PICS) : AVATARS).map(e => `<button type="button" class="avopt${a.e === e ? ' on' : ''}" data-av="${e}">${avPic(e)}</button>`).join('')}
     </div>`;
 }
 // thu ảnh về hình vuông 200px (cắt giữa) để nhẹ, lưu được trong máy

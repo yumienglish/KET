@@ -465,3 +465,15 @@ body.retrying .buddy,body.retrying .aiimg{display:none}
 /* nảy nhẹ khi điền xong / chạm chọn */
 input.txt.popin,.zone.popin,.bstar.popin{animation:popin .35s ease}
 @media (prefers-reduced-motion:reduce){.bmas.emo,img.bmas,.bar.ready .prog .rk,.bar.ready #submitBtn{animation:none}}
+
+/* ===== Hình ChatGPT đã gắn (20/11) ===== */
+.hero::before,.hero::after{content:none}
+.hero{background-position:center 28%,0 0,0 0}
+.hero h1{text-shadow:0 3px 0 rgba(60,20,140,.35),0 0 22px rgba(60,20,160,.45)}
+.decowrap{mix-blend-mode:multiply}
+img.deco{filter:none}
+.avopt img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.avopt:not(.photo){padding:0;background:#fff}
+.bdg img.bi{width:84px;height:auto}
+.fxb img.bi{width:64px;height:auto}
+img.bmas{width:60px}
