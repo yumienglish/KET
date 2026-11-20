@@ -6,6 +6,7 @@
    • Chữ highlight (bấm xem nghĩa) viết trong {{từ}} hoặc {{khoá|chữ hiển thị}}; khoá phải có trong VOCAB.
    • newWords = danh sách "New words" đầu bài (để chép vở): chỉ từ A2 trở lên / liên quan ngữ pháp,
      A1 chỉ lấy khi ít gặp. Từ nằm trong câu hỏi, đề bài KHÔNG đưa vào (vẫn highlight được).
+   • ai: tên hình minh hoạ ChatGPT img/ai/<tên>.jpg (chưa có thì tự ẩn) · cheer: câu linh vật nói (mặc định theo dạng bài)
    • Đáp án nhiều cách viết đúng thì ngăn bằng dấu |   (show = đáp án hiện cho HS xem)
    ===================================================================== */
 const OPEN_WEEK = 1;
@@ -86,7 +87,7 @@ const LESSONS = {
         } },
 
       /* Exercise 2 – nghe đánh vần (sách: Ex 3) */
-      { id: '3', type: 'spell', track: '1-02',
+      { id: '3', type: 'spell', track: '1-02', ai: 'k1-spelling',
         title: 'Pronunciation: spelling',
         how: '{{spelling|Spelling}} is {{important}} in the Key exam. Listen and write down the {{letters}} you hear. What {{famous}} names do the letters spell?',
         items: [
@@ -99,7 +100,7 @@ const LESSONS = {
         ] },
 
       /* Exercise 3 – nghe điền thông tin (sách: Ex 4) */
-      { id: '4', type: 'info', track: '1-03',
+      { id: '4', type: 'info', track: '1-03', ai: 'k1-best-friends',
         title: 'Listening: best friends',
         how: 'Listen to Maria asking four {{teenagers}} about their {{best friend|best friends}}. {{complete|Complete}} the {{information}}.',
         people: [
@@ -124,7 +125,7 @@ const LESSONS = {
         ] },
 
       /* Exercise 4 – speaking: nghe câu hỏi (không chữ) và ghi âm câu trả lời (sách: Ex 5) */
-      { id: '5', type: 'speak',
+      { id: '5', type: 'speak', ai: 'k1-speaking',
         title: 'Speaking: answer Maria’s questions',
         how: 'Listen to Maria’s questions. There is no text, so listen carefully! Then record a short answer about <b>your</b> best friend.',
         tip: { title: 'Useful words', lines: ['Well …', 'That’s easy.', 'That’s difficult.', 'That’s right.'] },

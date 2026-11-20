@@ -429,3 +429,39 @@ img.deco{width:clamp(96px,13vw,150px);height:auto;filter:drop-shadow(0 8px 10px 
 .toast.show{animation:bounce .45s}
 @media (max-width:700px){.hero:has(.pack:not([hidden]))::before{display:none}}
 .hero:has(.pack:not([hidden]))::before{top:auto;bottom:20px;left:6%;font-size:40px}
+
+/* =====================================================================
+   TRANG LÀM BÀI KIỂU MÀN CHƠI (20/11): Mission, linh vật, nhiên liệu tên lửa, hiệu ứng
+   ===================================================================== */
+/* thẻ Mission */
+.ex{position:relative;border:3px solid #fff;background:linear-gradient(180deg,#fff 0%,#fff 70%,#faf8ff 100%)}
+.ex::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;border-radius:18px 18px 0 0;background:linear-gradient(90deg,#7b5cff,#3a8bff,#ff5fa8)}
+.ex .badge{font-family:"Baloo 2",Nunito,sans-serif;font-size:16px;padding:4px 14px;box-shadow:0 3px 0 rgba(90,40,160,.25)}
+.ex.mdone{border-color:#bfe9cf;box-shadow:0 6px 0 rgba(31,138,76,.12),0 8px 22px rgba(60,40,90,.08)}
+.ex.mdone .badge{background:linear-gradient(90deg,#1fbf6a,#12a8c4)}
+.badge.bump{animation:popin .45s}
+/* hình minh hoạ ChatGPT */
+.aiimg{display:block;width:100%;max-width:640px;height:auto;border-radius:18px;margin:10px auto 6px;border:4px solid #fff;box-shadow:0 6px 16px rgba(60,40,120,.15)}
+/* linh vật + bong bóng lời nói */
+.buddy{display:flex;align-items:flex-end;gap:10px;margin:10px 0 6px}
+.bmas{flex:none}
+.bmas.emo{font-size:46px;line-height:1;animation:hop 2.6s ease-in-out infinite;filter:drop-shadow(0 4px 4px rgba(0,0,0,.12))}
+img.bmas{width:64px;height:auto;animation:hop 2.6s ease-in-out infinite}
+.bub{position:relative;background:#f1edff;color:#3f2a9e;font-weight:800;font-size:16px;line-height:1.4;border-radius:18px 18px 18px 4px;padding:9px 14px;margin-bottom:8px}
+.bub::before{content:"";position:absolute;left:-8px;bottom:6px;border:8px solid transparent;border-right-color:#f1edff;border-left:0}
+body.retrying .buddy,body.retrying .aiimg{display:none}
+/* thanh nhiên liệu tên lửa */
+.bar{background:rgba(255,255,255,.97);border-top:3px solid #e4ddff}
+.prog .t{font-size:15px;color:#5b3df5}
+.prog .t b{font-weight:800}
+.prog .track{position:relative;height:16px;overflow:visible;background:#ece8ff;border-radius:99px;margin:6px 26px 2px 0;box-shadow:inset 0 2px 3px rgba(60,40,120,.15)}
+.prog .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ffd23f,#ff8a3d,#ff5fa8);min-width:6px;transition:width .5s cubic-bezier(.3,1.4,.5,1)}
+.prog .rk{position:absolute;top:50%;left:0;transform:translate(-30%,-55%) rotate(45deg);font-size:24px;line-height:1;transition:left .5s cubic-bezier(.3,1.4,.5,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+.bar.ready .prog .fill{background:linear-gradient(90deg,#2bd47d,#3a8bff,#7b5cff)}
+.bar.ready .prog .rk{animation:shake2 .5s infinite}
+.bar.ready #submitBtn{animation:pulse3 1.2s infinite}
+@keyframes shake2{50%{transform:translate(-30%,-62%) rotate(45deg)}}
+@keyframes pulse3{50%{transform:scale(1.07);box-shadow:0 4px 0 #c9561a,0 0 0 8px rgba(255,138,61,.25)}}
+/* nảy nhẹ khi điền xong / chạm chọn */
+input.txt.popin,.zone.popin,.bstar.popin{animation:popin .35s ease}
+@media (prefers-reduced-motion:reduce){.bmas.emo,img.bmas,.bar.ready .prog .rk,.bar.ready #submitBtn{animation:none}}

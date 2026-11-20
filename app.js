@@ -297,8 +297,20 @@ function inp(k, label, extra = ''){ return `<input class="txt" data-k="${k}" ${i
 
 // số thứ tự bài hiển thị (1, 2, 3…), không dùng số bài trong sách
 const exNo = e => LESSON.ex.indexOf(e) + 1;
+// Câu cổ vũ của linh vật đầu mỗi Mission (tiếng Anh, ngắn). Bài nào có e.cheer thì dùng câu đó.
+const CHEER = {
+  reasons: 'There are no wrong answers here. Just be you! 😊',
+  spell: 'Listen to every letter. You can pause and play again! 🎧',
+  info: 'Names and numbers are the key. You’ve got this! 💪',
+  speak: 'Speak loud and clear, like a real astronaut! 🎤',
+};
+// Hình minh hoạ ChatGPT: img/ai/<tên>.jpg – chưa có file thì tự ẩn
+const aiImg = n => `<img class="aiimg" src="img/ai/${n}.jpg" alt="" loading="lazy" onerror="this.remove()">`;
 function exHead(e){
-  return `<div class="ex-head"><span class="badge">Exercise ${exNo(e)}</span><h2>${esc(e.title)}</h2></div>
+  const cheer = e.cheer || CHEER[e.type];
+  return `<div class="ex-head"><span class="badge">Mission ${exNo(e)}</span><h2>${esc(e.title)}</h2></div>
+    ${e.ai ? aiImg(e.ai) : ''}
+    ${cheer ? `<div class="buddy">${typeof uimg === 'function' ? uimg('mascot-3', '🐶', 'bmas') : '<span class="bmas emo">🐶</span>'}<div class="bub">${cheer}</div></div>` : ''}
     ${e.track ? `<div class="listen"><audio controls preload="none" src="audio/${e.track}.mp3"></audio></div>` : ''}
     <p class="how">${vt(e.how)}</p>`;
 }
@@ -467,10 +479,22 @@ function showWork(){ $('#start').hidden = true; $('#work').hidden = false; $('#b
 /* ============ TIẾN ĐỘ ============ */
 function tasks(){
   const a = [];
-  exOf('reasons').forEach(() => a.push({ k: 'reasons', done: S.pick.length > 0 && S.best != null }));
-  $$('input.txt').forEach(el => a.push({ k: el.dataset.k, done: !!(S.t[el.dataset.k] || '').trim() }));
-  exOf('speak').forEach(e => e.clips.forEach((c, j) => a.push({ k: 'rec', q: 'Q' + (j + 1), done: !!S.rec[e.id + '-' + (j + 1)] })));
+  exOf('reasons').forEach(e => a.push({ k: 'reasons', ex: e.id, done: S.pick.length > 0 && S.best != null }));
+  $$('input.txt').forEach(el => { const sec = el.closest('section.ex'); a.push({ k: el.dataset.k, ex: sec ? sec.id.slice(2) : '', done: !!(S.t[el.dataset.k] || '').trim() }); });
+  exOf('speak').forEach(e => e.clips.forEach((c, j) => a.push({ k: 'rec', ex: e.id, q: 'Q' + (j + 1), done: !!S.rec[e.id + '-' + (j + 1)] })));
   return a;
+}
+// Mission xong (đã làm đủ, chưa biết đúng sai) → huy hiệu ✅ trên đầu bài; lần đầu xong thì kêu "ting"
+let MISSIONS_DONE = null;
+function paintMissions(t){
+  const now = LESSON.ex.filter(e => { const x = t.filter(y => y.ex === e.id); return x.length && x.every(y => y.done); }).map(e => e.id);
+  LESSON.ex.forEach(e => {
+    const sec = $('#ex' + e.id); if (!sec) return;
+    const on = now.includes(e.id); sec.classList.toggle('mdone', on);
+    const b = $('.badge', sec); if (b) b.textContent = `Mission ${exNo(e)}${on ? ' ✅' : ''}`;
+    if (on && MISSIONS_DONE && !MISSIONS_DONE.includes(e.id) && typeof sfx === 'function'){ sfx('ok'); b && b.classList.remove('bump'); void (b && b.offsetWidth); b && b.classList.add('bump'); }
+  });
+  MISSIONS_DONE = now;
 }
 function progress(){
   const bar = $('#bar'); if (!bar) return;
@@ -483,10 +507,14 @@ function progress(){
     $('#progF').style.width = (R.total ? R.score / R.total * 100 : 100) + '%';
     $('#submitBtn').hidden = true;
   } else {
-    const t = tasks(), d = t.filter(x => x.done).length;
-    $('#progT').textContent = `Done ${d}/${t.length}`;
-    $('#progF').style.width = (t.length ? d / t.length * 100 : 0) + '%';
-    $('#submitBtn').textContent = 'Submit ✔'; $('#submitBtn').hidden = false;
+    // thanh nhiên liệu tên lửa: làm đủ hết → sẵn sàng cất cánh (nút Submit nhấp nháy)
+    const t = tasks(), d = t.filter(x => x.done).length, pct = t.length ? Math.round(d / t.length * 100) : 0, full = t.length && d === t.length;
+    $('#progT').innerHTML = full ? '🚀 <b>Ready for lift-off!</b>' : `⛽ Rocket fuel <b>${pct}%</b> · ${d}/${t.length}`;
+    $('#progF').style.width = pct + '%';
+    const rk = $('#progR'); if (rk) rk.style.left = pct + '%';
+    bar.classList.toggle('ready', !!full);
+    $('#submitBtn').textContent = full ? 'Lift off! 🚀' : 'Submit ✔'; $('#submitBtn').hidden = false;
+    paintMissions(t);
   }
 }
 

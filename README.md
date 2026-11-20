@@ -23,4 +23,5 @@ Dùng chung máy chủ Code.gs với các trang BTVN (unit `KET`):
 
 ## Giao diện game (fun.js)
 - Chủ đề vũ trụ: bản đồ hành tinh, 8 huy hiệu, Quick review (ôn từ 90 giây), âm thanh + pháo giấy, câu chọc/khen của cô (TEASE trong app.js).
-- Hình vẽ ChatGPT: làm theo `ai-images/PROMPTS-HOME.md`. Cắt xong vào `img/ui/*.webp` thì đổi `ART = true` trong fun.js. Khi `ART = false`, web dùng emoji.
+- Hình vẽ ChatGPT: trang chủ theo `ai-images/PROMPTS-HOME.md`, hình từng Mission theo `ai-images/PROMPTS.md` (img/ai/<tên>.jpg, field `ai` trong lessons.js). Cắt xong vào `img/ui/*.webp` thì đổi `ART = true` trong fun.js. Khi `ART = false`, web dùng emoji.
+- Trang làm bài: mỗi bài tập là 1 Mission (✅ khi làm đủ), linh vật nói câu cổ vũ (CHEER trong app.js, hoặc `cheer` trong lessons.js), thanh nhiên liệu tên lửa, "ting" khi điền/chạm.

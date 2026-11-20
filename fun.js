@@ -234,6 +234,18 @@ function startReview(){
   show();
 }
 
+/* ---------- Trang làm bài: "ting" + nảy nhẹ khi điền xong / chạm chọn (không lộ đúng sai) ---------- */
+const canPlay = () => typeof S !== 'undefined' && S && (S.phase === 'work' || S.phase === 'retry');
+function bounce(el){ if (!el) return; el.classList.remove('popin'); void el.offsetWidth; el.classList.add('popin'); }
+document.addEventListener('change', ev => {
+  const el = ev.target; if (!el.matches || !el.matches('input.txt') || el.disabled || !canPlay()) return;
+  if (el.value.trim()){ sfx('pop'); bounce(el); }
+});
+document.addEventListener('click', ev => {
+  if (!canPlay() || !ev.target.closest) return;
+  const z = ev.target.closest('.zone, .bstar'); if (z && !z.disabled){ sfx('pop'); bounce(z.closest('.bstar') || z); }
+});
+
 /* ---------- Gắn vào trang chủ ---------- */
 function afterHome(){
   drawMap(); setTimeout(drawMap, 300); // vẽ lại khi font/ảnh tải xong
