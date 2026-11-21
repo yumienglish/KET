@@ -477,3 +477,6 @@ img.deco{filter:none}
 .bdg img.bi{width:84px;height:auto}
 .fxb img.bi{width:64px;height:auto}
 img.bmas{width:60px}
+
+/* Tài khoản Yumi: nút 🏆 + Log out ở trang chủ */
+.yarow{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px}
