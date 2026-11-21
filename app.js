@@ -188,7 +188,7 @@ function renderHome(){
   document.title = 'KET Adventure 🚀';
   $('#heroSub').textContent = 'Explore · Listen · Speak · Shine ✨';
   const me = lsGet(ME_KEY) || {};
-  const first = String(me.name || '').trim().split(/\s+/).pop();
+  const first = (typeof YA !== 'undefined' && YA && YA.me()) ? YA.me().name : String(me.name || '').trim().split(/\s+/).pop(); // đăng nhập → nguyên nickname
   const d = gameData(), { stars, words, done } = d; // fun.js
   const lv = 1 + Math.floor(stars / 6), xp = stars % 6;
   $('#app').innerHTML = `<section class="card hi">
