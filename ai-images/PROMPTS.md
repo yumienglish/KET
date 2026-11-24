@@ -35,3 +35,27 @@ A friendly girl reporter with a microphone and a small notebook interviews four 
 ```
 A confident kid astronaut speaking into a big shiny microphone inside a spaceship recording studio, with sound waves in rainbow colours coming out. On a round screen behind, a happy picture of two best friends doing a high-five. A cute puppy astronaut gives a thumbs-up from the side.
 ```
+
+---
+
+## Tuần 2 – 1.2 Borrow this!
+
+### 4. `k2-lend.png` – Mission 1 (nói về việc cho bạn mượn đồ)
+```
+Two cheerful kid friends standing on a small cute planet. One kid happily hands the other a pile of things to borrow: a book, a video-game box, a colourful magazine and a jacket. The other kid smiles and says thank you with a thumbs-up. A cute puppy astronaut (golden-brown fur, white-and-violet space suit) floats nearby holding a small gift box.
+```
+
+### 5. `k2-mistakes.png` – Mission 2 (thám tử tìm câu sai)
+```
+A cute kid detective wearing a little space helmet and holding a big magnifying glass, carefully checking a row of floating speech bubbles shaped like question marks (bubbles are blank, no writing). Some bubbles have a small green tick badge, others a small red cross badge. A cute puppy astronaut in a tiny detective hat points at one bubble.
+```
+
+### 6. `k2-questions.png` – Mission 3 (đặt câu hỏi)
+```
+Inside a bright spaceship cabin, a kid with a microphone interviews a smiling friend. Big colourful question-mark shapes and jigsaw-puzzle pieces float in the air between them, as if building a sentence. A cute puppy astronaut takes notes on a clipboard (no writing visible).
+```
+
+### 7. `k2-feelings.png` – Mission 4 (tính từ chỉ cảm xúc)
+```
+A fun row of five cute round alien kids sitting on a crescent moon, each showing a different mood with a big clear facial expression: very excited with sparkly eyes, surprised, sleepy, laughing, thinking. Small stars and planets around them. A cute puppy astronaut waves at them.
+```

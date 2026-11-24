@@ -52,6 +52,28 @@ const VOCAB = {
   'special':        { w: 'special', ipa: '/ˈspeʃəl/', vi: 'đặc biệt' },
   'river':          { w: 'river', ipa: '/ˈrɪvə/', vi: 'dòng sông' },
   'help sb with sth': { w: 'help someone with something', ipa: '/help ˈsʌmwʌn wɪð ˈsʌmθɪŋ/', vi: 'giúp ai làm việc gì (VD: help me with my homework – giúp mình làm bài tập)' },
+
+  /* 1.2 Borrow this! */
+  'borrow':         { w: 'borrow', ipa: '/ˈbɒrəʊ/', vi: 'mượn (của ai đó)' },
+  'lend':           { w: 'lend', ipa: '/lend/', vi: 'cho (ai) mượn' },
+  'give back':      { w: 'give back', ipa: '/ɡɪv ˈbæk/', vi: 'trả lại' },
+  'magazines':      { w: 'magazines', ipa: '/ˌmæɡəˈziːnz/', vi: 'tạp chí' },
+  'make-up':        { w: 'make-up', ipa: '/ˈmeɪk ʌp/', vi: 'đồ trang điểm' },
+  'mistakes':       { w: 'mistakes', ipa: '/mɪˈsteɪks/', vi: 'lỗi sai' },
+  'correct':        { w: 'correct', ipa: '/kəˈrekt/', vi: 'đúng; sửa (cho đúng)' },
+  'adjective':      { w: 'adjective', ipa: '/ˈædʒɪktɪv/', vi: 'tính từ (từ miêu tả người, vật)' },
+  'amazing':        { w: 'amazing', ipa: '/əˈmeɪzɪŋ/', vi: 'tuyệt vời, đáng kinh ngạc' },
+  'free':           { w: 'free', ipa: '/friː/', vi: 'rảnh rỗi (không bận)' },
+  'horrible':       { w: 'horrible', ipa: '/ˈhɒrəbl/', vi: 'kinh khủng, rất dở' },
+  'pleased':        { w: 'pleased', ipa: '/pliːzd/', vi: 'vui, hài lòng' },
+  'popular':        { w: 'popular', ipa: '/ˈpɒpjələ/', vi: 'được nhiều người yêu thích' },
+  'sick':           { w: 'sick', ipa: '/sɪk/', vi: 'ốm, bệnh' },
+  'worried':        { w: 'worried', ipa: '/ˈwʌrid/', vi: 'lo lắng' },
+  'rock concert':   { w: 'rock concert', ipa: '/ˈrɒk ˌkɒnsət/', vi: 'buổi hoà nhạc rock' },
+  'flu':            { w: 'flu', ipa: '/fluː/', vi: 'bệnh cúm' },
+  'sweet':          { w: 'sweet', ipa: '/swiːt/', vi: 'viên kẹo (danh từ)' },
+  'postcard':       { w: 'postcard', ipa: '/ˈpəʊstkɑːd/', vi: 'bưu thiếp' },
+  'flat':           { w: 'flat', ipa: '/flæt/', vi: 'căn hộ' },
 };
 
 /* ---------- BÀI HỌC THEO TUẦN ---------- */
@@ -137,6 +159,100 @@ const LESSONS = {
           { audio: '1-04-q5', q: 'Where do you go together?' },
           { audio: '1-04-q6', q: 'What do you do together?' },
           { audio: '1-04-q7', q: 'Why is your friend special?', newWord: 'special' },
+        ] },
+    ],
+  },
+
+  /* ===================== TUẦN 2 – 1.2 Borrow this! ===================== */
+  2: {
+    code: '1.2', title: 'Borrow this!', unit: 'Unit 1 · Friends',
+    newWords: ['borrow', 'magazines', 'make-up', 'amazing', 'free', 'horrible', 'pleased', 'popular', 'sick', 'worried', 'rock concert', 'flu', 'sweet'],
+    // Ô ngữ pháp: tiếng Việt, rất ngắn. Ví dụ KHÔNG trùng câu / động từ trong bài tập.
+    grammar: `
+      <h4>1. Câu hỏi Yes/No</h4>
+      <ul>
+        <li><b>be</b>, <b>can</b>: đưa lên trước chủ ngữ. <i>You are tired. → <b>Are</b> you tired?</i> · <i><b>Can</b> she swim?</i></li>
+        <li><b>have got</b>: <b>Have/Has</b> đứng đầu, <b>got</b> đứng sau chủ ngữ. <i><b>Has</b> Tom <b>got</b> a cat?</i></li>
+        <li>Động từ thường: thêm <b>Do / Does</b> ở đầu. <i><b>Do</b> you like pizza? · <b>Does</b> she play tennis?</i></li>
+      </ul>
+      <h4>2. Câu hỏi có từ để hỏi (What, Where, When, Who, Why, How…)</h4>
+      <ul>
+        <li>Từ để hỏi đứng đầu, phần sau giống câu Yes/No.</li>
+        <li><i>What <b>is</b> his name? · Where <b>can</b> we eat? · What time <b>does</b> the film start?</i></li>
+      </ul>
+      <h4>3. Rủ bạn làm gì</h4>
+      <ul>
+        <li><b>How about + V-ing…?</b> <i>How about <b>going</b> to the park?</i></li>
+        <li><b>Why don’t we + V…?</b> <i>Why don’t we <b>play</b> football?</i></li>
+      </ul>`,
+    ex: [
+      /* Mission 1 – sách Ex 1: 2 câu hỏi → ghi âm trả lời (câu hỏi hiện chữ) */
+      { id: '1', type: 'speak', ai: 'k2-lend',
+        title: 'Speaking: lending things',
+        how: 'Read the questions and record your answers. Use the key words to help you.',
+        tip: { title: 'Key words', lines: ['books', 'clothes', 'computer games', 'DVDs', 'magazines', 'make-up', 'money'] },
+        clips: [
+          { q: 'What things do you {{lend}} your friends?' },
+          { q: 'Do they always {{give back|give them back}}?' },
+        ] },
+
+      /* Mission 2 – sách Ex 4: tìm câu sai, viết lại cho đúng (khung từ để chèn) */
+      { id: '4', type: 'fixit', ai: 'k2-mistakes',
+        title: 'Find the mistakes',
+        how: 'Students wrote these questions. Five have {{mistakes}} and two are {{correct}}. Is each question right or wrong? {{correct|Correct}} the wrong ones. The words in the box can help you.',
+        vi: 'Chọn ✅ nếu câu đúng, ❌ nếu câu sai. Câu sai thì viết lại cho đúng (chạm vào từ trong khung để chèn).',
+        bank: ['do', 'does', 'are', 'is', 'did', 'meet', 'meeting'],
+        items: [
+          { t: 'When you want to come here?', fix: 'When do you want to come here?', h: 'Câu hỏi với động từ thường (want) cần thêm trợ động từ.' },
+          { t: 'Where you are now?', fix: 'Where are you now?', h: 'Với động từ be: be đứng trước chủ ngữ.' },
+          { t: 'How about meet me at 7 o’clock?', fix: 'How about meeting me at 7 o’clock?|How about meeting me at seven o’clock?', h: 'Sau How about, động từ phải đổi dạng. Xem mục 3 trong ô Grammar.' },
+          { t: 'Why don’t we meet at the station?', fix: null },
+          { t: 'Why you think it is interesting?', fix: 'Why do you think it is interesting?', h: 'Câu hỏi với động từ thường (think) cần thêm trợ động từ.' },
+          { t: 'What do you want to buy?', fix: null },
+          { t: 'Who he does like?', fix: 'Who does he like?', h: 'Xem lại trật tự: trợ động từ đứng TRƯỚC chủ ngữ.' },
+        ] },
+
+      /* Mission 3 – sách Ex 5: viết câu hỏi từ gợi ý */
+      { id: '5', type: 'write', ai: 'k2-questions',
+        title: 'Make questions',
+        how: 'Write the questions. Add the missing words.',
+        example: { cue: 'Why / you / happy?', a: 'Why are you happy?' },
+        items: [
+          { cue: 'Where / you / live?', key: 'Where do you live?', h: 'live là động từ thường → cần trợ động từ.' },
+          { cue: 'What / your dad’s / first name?', key: 'What’s your dad’s first name?|What is your dad’s first name?', h: 'Thiếu động từ be.' },
+          { cue: 'When / this lesson / finish?', key: 'When does this lesson finish?', h: 'Chủ ngữ số ít (this lesson) + động từ thường.' },
+          { cue: 'Who / special friend?', key: 'Who is your special friend?|Who’s your special friend?', h: 'Thiếu động từ be và một từ chỉ “của bạn”.' },
+          { cue: 'How / lending me …?', re: '^how about lending me [a-z]', show: 'How about lending me your bike (tomorrow)?', h: 'Rủ / nhờ bạn: How about + V-ing…? Thêm đồ vật em muốn mượn ở cuối.' },
+        ] },
+
+      /* Mission 4 – sách Ex 6: điền tính từ (khung từ bên cạnh) + chạm tìm thêm 3 tính từ */
+      { id: '6', type: 'fill', ai: 'k2-feelings',
+        title: 'Vocabulary: adjectives',
+        how: 'Complete the sentences with an {{adjective}} from the box. There is one extra adjective.',
+        box: ['amazing', 'free', 'horrible', '~lucky', 'pleased', 'popular', 'sick', 'true', 'worried'],
+        example: 'Maria’s so [[lucky]] – she’s got two tickets for tonight’s {{rock concert}}!',
+        items: [
+          { t: 'My mum’s [[sick]] – she’s in bed with {{flu}}.', h: 'Mẹ đang nằm trên giường vì bị cúm.' },
+          { t: 'Are you [[free]] tonight? Let’s go out!', h: 'Rủ đi chơi tối nay → hỏi bạn có bận không.' },
+          { t: 'This {{sweet}} is really [[horrible]]! Can I have a different one?', h: 'Muốn đổi viên kẹo khác → viên này thế nào?' },
+          { t: 'I’m really [[pleased]] to see you. How are you?', h: 'Gặp bạn thì cảm thấy thế nào?' },
+          { t: 'Don’t look so [[worried]] – I’m not angry!', h: 'Đọc vế sau: “I’m not angry!” Bạn kia đang có vẻ mặt ra sao?' },
+          { t: 'Your new phone is [[amazing]]! I want one.', h: 'Em cũng muốn có một cái → nó rất…' },
+          { t: 'Why is this cartoon so [[popular]]? I think it’s really boring!', h: 'Nhiều người thích xem, nhưng bạn này thấy chán.' },
+        ],
+        // phần 2: chạm 3 tính từ khác trong các câu (new cũng là tính từ → chấp nhận)
+        adj: { how: 'Find three more adjectives in the sentences. Tap them!', valid: ['different', 'angry', 'boring', 'new'], show: 'different, angry, boring (new is OK too)' } },
+
+      /* Mission 5 – Exam folder 1: Listening Part 1 (mỗi câu 1 đoạn audio, bỏ lời dẫn) */
+      { id: 'L', type: 'pick',
+        title: 'Listening Part 1: short conversations',
+        how: 'Listen to each conversation and choose the right answer (A, B or C).',
+        items: [
+          { q: 'What is the man buying for his lunch?', audio: '1-05-q1', img: ['l12/q1A.jpg', 'l12/q1B.jpg', 'l12/q1C.jpg'], desc: ['sandwiches', 'soup', 'pizza'], key: 'C', h: 'Có 2 người được nhắc đến. Món nào là của chính người đàn ông?' },
+          { q: 'When is Maria’s party?', audio: '1-05-q2', opts: ['2 Wednesday', '4 Friday', '5 Saturday'], key: 'A', h: 'Sinh nhật và bữa tiệc có thể khác ngày. Nghe câu cuối của Maria.' },
+          { q: 'Which {{postcard}} does the woman choose?', audio: '1-05-q3', img: ['l12/q3A.jpg', 'l12/q3B.jpg', 'l12/q3C.jpg'], desc: ['forest', 'city at night', 'lake'], key: 'A', h: 'Người phụ nữ đổi ý ở cuối đoạn. Nghe câu cuối của cô ấy.' },
+          { q: 'How much does the woman pay for the DVD?', audio: '1-05-q4', opts: ['£9.50', '£10.50', '£19.50'], key: 'B', h: 'Có nhiều con số. Câu hỏi là giá của chiếc DVD cô ấy MUA.' },
+          { q: 'What did the girl leave at Ben’s {{flat}}?', audio: '1-05-q5', img: ['l12/q5A.jpg', 'l12/q5B.jpg', 'l12/q5C.jpg'], desc: ['jacket', 'books', 'bike lights'], key: 'C', h: 'Nghe kĩ những câu đầu tiên của cô gái.' },
         ] },
     ],
   },
