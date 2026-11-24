@@ -9,7 +9,7 @@
    • ai: tên hình minh hoạ ChatGPT img/ai/<tên>.jpg (chưa có thì tự ẩn) · cheer: câu linh vật nói (mặc định theo dạng bài)
    • Đáp án nhiều cách viết đúng thì ngăn bằng dấu |   (show = đáp án hiện cho HS xem)
    ===================================================================== */
-const OPEN_WEEK = 1;
+const OPEN_WEEK = 2;
 
 // Máy chủ nhận bài (Code.gs dùng chung với các trang BTVN khác)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAom9bBpL0ms0VD7_bz5w691011llkFzttYSjKDyRyMCjLLeUZ4EZGGJLtLMFWuiV4sA/exec';
