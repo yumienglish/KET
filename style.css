@@ -480,3 +480,6 @@ img.bmas{width:60px}
 
 /* Tài khoản Yumi: nút 🏆 + Log out ở trang chủ */
 .yarow{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:12px}
+
+/* Nhân vật tủ đồ (avatar.js) thay avatar */
+.avchar{overflow:hidden;padding:0;background:radial-gradient(circle,#fff,#ffe9d9)}.avchar .yav{width:100%}

@@ -116,6 +116,7 @@ const AV_ART = true, AV_PICS = 16;
 const avPic = e => { const i = AVATARS.indexOf(e); return AV_ART && i >= 0 && i < AV_PICS ? `<img src="img/ui/av-${i + 1}.webp" alt="${e}">` : e; };
 const avGet = () => { const a = lsGet(AV_KEY); return a && (a.e || (typeof a.img === 'string' && a.img.startsWith('data:image/'))) ? a : null; };
 function avHTML(cls = ''){
+  if (typeof yaChar === 'function' && yaChar() && window.YumiAvatar) return `<span class="av ${cls} avchar">${YumiAvatar.html(YA.me().avatar, { crop: 'head' })}</span>`; // nhân vật tủ đồ
   const a = avGet();
   return `<span class="av ${cls}">${a && a.img ? `<img src="${esc(a.img)}" alt="">` : a ? avPic(a.e) : '🙂'}</span>`;
 }
@@ -164,12 +165,13 @@ const YA = window.YumiAuth && YumiAuth.ready() ? YumiAuth : null;
 const YA_OPTS = { mascot: 'img/ui/mascot-1.webp', title: 'KET Adventure 🚀', sub: 'Log in to start your space adventure 🪐',
   theme: { bg: 'linear-gradient(160deg,#ffe6d5,#efe4ff 55%,#d9f3ff)', text: '#22303c', acc: '#ff8a3d', acc2: '#8a5cff',
     font: 'Nunito,system-ui,sans-serif', head: '"Baloo 2",Nunito,system-ui,sans-serif' } };
+const yaChar = () => { const m = YA && YA.me(); return !!(m && /^ket:\{/.test(m.avatar || '')); }; // đã có nhân vật tủ đồ KET
 function yaSync(){ // tên + lớp lấy theo tài khoản
   const m = YA && YA.me(); if (!m) return;
   lsSet(ME_KEY, Object.assign(lsGet(ME_KEY) || {}, { name: m.fullName || m.name, cls: m.cls }));
 }
 function yaAvatar(){ // gửi avatar lên bảng xếp hạng (ảnh tự chụp thì không gửi)
-  const a = avGet(); if (!YA || !a || !a.e) return;
+  const a = avGet(); if (!YA || !a || !a.e || yaChar()) return;
   const i = AVATARS.indexOf(a.e);
   YA.setAvatar(AV_ART && i >= 0 && i < AV_PICS ? new URL(`img/ui/av-${i + 1}.webp`, location.href).pathname : a.e);
 }
@@ -180,8 +182,13 @@ function yaHome(){
   row.appendChild(YA.trophy({ theme: YA_OPTS.theme }));
   const out = document.createElement('button'); out.type = 'button'; out.className = 'linkbtn'; out.textContent = 'Log out';
   out.onclick = () => YA.logout();
+  if (window.YumiAvatar) row.appendChild(YumiAvatar.button({ style: 'ket', theme: YA_OPTS.theme, onSave: () => renderHome() }));
   row.appendChild(out); card.appendChild(row);
-  yaAvatar(); YA.autoBoard({ theme: YA_OPTS.theme });
+  yaAvatar();
+  // lần đầu: tạo nhân vật (+ hướng dẫn tân thủ) → vẽ lại trang chủ, rồi mới hiện bảng xếp hạng
+  const done = () => YA.autoBoard({ theme: YA_OPTS.theme });
+  if (window.YumiAvatar) YumiAvatar.ensure({ style: 'ket', theme: YA_OPTS.theme }).then(v => { if (v) renderHome(); else done(); }).catch(done);
+  else done();
 }
 
 function renderHome(){
@@ -479,6 +486,7 @@ function buildLesson(){
     ['inName', 'inCls'].forEach(id => { $('#' + id).closest('.field').hidden = true; });
     $('#start h2').textContent = `👋 Hi ${m.name}!`;
     $('#start p.muted').innerHTML = 'Choose your avatar and tap <b>Start</b>. Put on headphones or turn the sound on 🎧';
+    if (yaChar()){ const f = $('#avStart') && $('#avStart').closest('.field'); if (f) f.hidden = true; $('#start p.muted').innerHTML = 'Tap <b>Start</b> to begin. Put on headphones or turn the sound on 🎧'; }
   }
   $('#startBtn').addEventListener('click', onStart);
   ['inName', 'inCls'].forEach(id => $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') onStart(); }));
@@ -497,7 +505,7 @@ function onStart(){
   const n = $('#inName').value.trim(), c = $('#inCls').value.trim();
   if (n.length < 2){ $('#startErr').textContent = 'Em hãy nhập họ và tên.'; return; }
   if (!c){ $('#startErr').textContent = 'Em hãy nhập lớp.'; return; }
-  if (!avGet()){ $('#startErr').textContent = 'Em hãy chọn avatar nhé.'; $('#avStart').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  if (!avGet() && !yaChar()){ $('#startErr').textContent = 'Em hãy chọn avatar nhé.'; $('#avStart').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
   $('#startErr').textContent = '';
   S.name = n.slice(0, 80); S.cls = c.slice(0, 30);
   if (!S.startedAt) S.startedAt = new Date().toISOString();

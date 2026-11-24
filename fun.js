@@ -211,6 +211,7 @@ function startReview(){
   function end(){
     if (G.over) return; G.over = true;
     clearInterval(G.timer);
+    if (window.YumiAvatar && G.score >= 5) YumiAvatar.gamePlayed('quick-review'); // +5 xu (≥5 câu đúng, máy chủ giới hạn 3 lượt/ngày)
     const st = G.score >= Q.length ? 3 : G.score >= Q.length * .7 ? 2 : G.score >= Q.length * .4 ? 1 : 0;
     const r = Object.assign({ plays: 0, best: 0, stars: 0, days: {} }, lsGet(REV_KEY) || {});
     const t = today(), n = r.days[t] || 0, gain = n < 3 ? st : 0; // mỗi ngày tính sao 3 lượt đầu
