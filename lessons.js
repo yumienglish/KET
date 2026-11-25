@@ -1,7 +1,7 @@
 /* =====================================================================
    KET Adventure – DỮ LIỆU BÀI HỌC
    ---------------------------------------------------------------------
-   • OPEN_WEEK: tuần đang mở. Mỗi tuần thêm 1 bài vào LESSONS rồi tăng số này.
+   • OPEN_WEEK: tuần đang mở (tự tính từ OPEN_WEEK_SET + OPEN_DATES – xem "MỞ TUẦN" bên dưới). Mỗi tuần thêm 1 bài vào LESSONS.
      Các bài tuần trước vẫn mở để học sinh xem lại.
    • Chữ highlight (bấm xem nghĩa) viết trong {{từ}} hoặc {{khoá|chữ hiển thị}}; khoá phải có trong VOCAB.
    • newWords = danh sách "New words" đầu bài (để chép vở): chỉ từ A2 trở lên / liên quan ngữ pháp,
@@ -9,7 +9,11 @@
    • ai: tên hình minh hoạ ChatGPT img/ai/<tên>.jpg (chưa có thì tự ẩn) · cheer: câu linh vật nói (mặc định theo dạng bài)
    • Đáp án nhiều cách viết đúng thì ngăn bằng dấu |   (show = đáp án hiện cho HS xem)
    ===================================================================== */
-const OPEN_WEEK = 2;
+/* ---- MỞ TUẦN ----
+   OPEN_WEEK_SET = tuần mở tay (như trước đây). OPEN_DATES = ngày TỰ MỞ từng tuần (0h giờ Việt Nam), VD { 3: '2026-12-01', 4: '2026-12-08' }:
+   đến ngày đó tuần tự mở, không cần sửa số. Chỉ tự mở khi tuần đó đã có bài. Tuần chưa mở vẫn xem trước được bằng ?preview. */
+const OPEN_WEEK_SET = 2;
+const OPEN_DATES = {};
 
 // Máy chủ nhận bài (Code.gs dùng chung với các trang BTVN khác)
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAom9bBpL0ms0VD7_bz5w691011llkFzttYSjKDyRyMCjLLeUZ4EZGGJLtLMFWuiV4sA/exec';
@@ -257,3 +261,6 @@ const LESSONS = {
     ],
   },
 };
+
+// Tuần đang mở = số lớn nhất giữa OPEN_WEEK_SET và các mục OPEN_DATES đã tới ngày (giờ VN) + đã có bài
+const OPEN_WEEK = Object.keys(OPEN_DATES).reduce((w, k) => (+k > w && LESSONS[k] && Date.parse(OPEN_DATES[k] + 'T00:00:00+07:00') <= Date.now() ? +k : w), OPEN_WEEK_SET);
