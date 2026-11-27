@@ -2,7 +2,7 @@
 
 ## Cách làm
 1. Mở ChatGPT, tạo từng hình. Mỗi lần gửi: dán **STYLE** + **prompt của hình đó**.
-2. Tải ảnh về, lưu vào `D:\ket\ai-images\` với **đúng tên file** ghi ở mỗi hình (ví dụ `k1-spelling.png`).
+2. Tải ảnh về, lưu vào `D:\8 Web bai tap\ket\ai-images\` với **đúng tên file** ghi ở mỗi hình (ví dụ `k1-spelling.png`).
 3. Lưu xong thì báo mình. Mình sẽ nén ảnh, đặt vào đầu Mission và đưa lên web.
 
 Hình nào chưa có thì web tự ẩn chỗ đó, không bị lỗi. Nếu ChatGPT vẽ ra có chữ, bảo nó vẽ lại: *"Same picture, but remove all text and letters."*

@@ -2,7 +2,7 @@
 
 ## Cách làm
 1. Mở ChatGPT, tạo từng hình. Mỗi lần gửi: dán **STYLE** + **prompt của hình đó**.
-2. Tải ảnh về, lưu vào `D:\ket\ai-images\` với **đúng tên file** ghi ở mỗi hình.
+2. Tải ảnh về, lưu vào `D:\8 Web bai tap\ket\ai-images\` với **đúng tên file** ghi ở mỗi hình.
 3. Lưu xong thì báo mình. Mình sẽ cắt từng ô, nén ảnh và thay emoji tạm trên web bằng hình thật.
 
 Mẹo:
