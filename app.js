@@ -206,11 +206,6 @@ function renderHome(){
       <div id="avBox" class="avbox" hidden></div>
       <h2>Hi ${first ? esc(first) : 'superstar'}! 🌟</h2>
       <p class="hiline">${hiLine()}</p>
-      <div class="stats">
-        <div class="stat"><b>⭐ ${stars}</b><span>stars</span></div>
-        <div class="stat"><b>📒 ${words}</b><span>new words</span></div>
-        <div class="stat"><b>🪐 ${done}</b><span>planets</span></div>
-      </div>
       <div class="lvl"><span class="lvn">🏆 Level ${lv}</span><div class="lvbar"><i style="width:${Math.round(xp / 6 * 100)}%"></i></div><span class="lvx">⭐ ${xp}/6</span></div>
       ${stars ? '' : '<p class="muted small" style="margin:10px 0 0">Your first stars are waiting for you! ⭐</p>'}
     </section>
