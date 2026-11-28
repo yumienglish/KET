@@ -12,7 +12,7 @@
 /* ---- MỞ TUẦN ----
    OPEN_WEEK_SET = tuần mở tay (như trước đây). OPEN_DATES = ngày TỰ MỞ từng tuần (0h giờ Việt Nam), VD { 3: '2026-12-01', 4: '2026-12-08' }:
    đến ngày đó tuần tự mở, không cần sửa số. Chỉ tự mở khi tuần đó đã có bài. Tuần chưa mở vẫn xem trước được bằng ?preview. */
-const OPEN_WEEK_SET = 2;
+const OPEN_WEEK_SET = 3;
 const OPEN_DATES = {};
 
 // Máy chủ nhận bài (Code.gs dùng chung với các trang BTVN khác)
@@ -78,6 +78,33 @@ const VOCAB = {
   'sweet':          { w: 'sweet', ipa: '/swiːt/', vi: 'viên kẹo (danh từ)' },
   'postcard':       { w: 'postcard', ipa: '/ˈpəʊstkɑːd/', vi: 'bưu thiếp' },
   'flat':           { w: 'flat', ipa: '/flæt/', vi: 'căn hộ' },
+
+  /* 2.1 For sale + 2.2 Shopping from home */
+  'bookshop':       { w: 'bookshop', ipa: '/ˈbʊkʃɒp/', vi: 'hiệu sách' },
+  'chemist':        { w: 'chemist', ipa: '/ˈkemɪst/', vi: 'hiệu thuốc (bán cả dầu gội, xà phòng…)' },
+  'department store': { w: 'department store', ipa: '/dɪˈpɑːtmənt stɔː/', vi: 'cửa hàng bách hoá (bán đủ thứ)' },
+  'market':         { w: 'market', ipa: '/ˈmɑːkɪt/', vi: 'chợ' },
+  'sports shop':    { w: 'sports shop', ipa: '/ˈspɔːts ʃɒp/', vi: 'cửa hàng đồ thể thao' },
+  'catalogue':      { w: 'catalogue', ipa: '/ˈkætəlɒɡ/', vi: 'cuốn danh mục hàng (xem hình rồi đặt mua)' },
+  'price list':     { w: 'price list', ipa: '/ˈpraɪs lɪst/', vi: 'bảng giá' },
+  'size':           { w: 'size', ipa: '/saɪz/', vi: 'cỡ, kích cỡ (S, M, L…)' },
+  'in the sale':    { w: 'in the sale', ipa: '/ɪn ðə seɪl/', vi: 'đang được giảm giá' },
+  'leather':        { w: 'leather', ipa: '/ˈleðə/', vi: 'da (thuộc) – VD: giày da' },
+  'customers':      { w: 'customers', ipa: '/ˈkʌstəməz/', vi: 'khách hàng' },
+  'luggage':        { w: 'luggage', ipa: '/ˈlʌɡɪdʒ/', vi: 'hành lý' },
+  'suitcases':      { w: 'suitcases', ipa: '/ˈsuːtkeɪsɪz/', vi: 'va li' },
+  'competition':    { w: 'competition', ipa: '/ˌkɒmpəˈtɪʃən/', vi: 'cuộc thi' },
+  'prize':          { w: 'prize', ipa: '/praɪz/', vi: 'giải thưởng' },
+  'usual':          { w: 'usual', ipa: '/ˈjuːʒuəl/', vi: 'như thường lệ, như mọi khi' },
+  'machine':        { w: 'machine', ipa: '/məˈʃiːn/', vi: 'cái máy' },
+  'journey':        { w: 'journey', ipa: '/ˈdʒɜːni/', vi: 'chuyến đi' },
+  'necessary':      { w: 'necessary', ipa: '/ˈnesəsəri/', vi: 'cần thiết' },
+  'interested':     { w: 'interested', ipa: '/ˈɪntrəstɪd/', vi: 'quan tâm, thích' },
+  'shampoo':        { w: 'shampoo', ipa: '/ʃæmˈpuː/', vi: 'dầu gội đầu' },
+  'spend':          { w: 'spend', ipa: '/spend/', vi: 'tiêu (tiền); dành (thời gian)' },
+  'pairs':          { w: 'pairs', ipa: '/peəz/', vi: 'đôi (giày, tất…)' },
+  'singular':       { w: 'singular', ipa: '/ˈsɪŋɡjələ/', vi: 'số ít (1 cái)' },
+  'plural':         { w: 'plural', ipa: '/ˈplʊərəl/', vi: 'số nhiều (2 cái trở lên)' },
 };
 
 /* ---------- BÀI HỌC THEO TUẦN ---------- */
@@ -257,6 +284,162 @@ const LESSONS = {
           { q: 'Which {{postcard}} does the woman choose?', audio: '1-05-q3', img: ['l12/q3A.jpg', 'l12/q3B.jpg', 'l12/q3C.jpg'], desc: ['forest', 'city at night', 'lake'], key: 'A', h: 'Người phụ nữ đổi ý ở cuối đoạn. Nghe câu cuối của cô ấy.' },
           { q: 'How much does the woman pay for the DVD?', audio: '1-05-q4', opts: ['£9.50', '£10.50', '£19.50'], key: 'B', h: 'Có nhiều con số. Câu hỏi là giá của chiếc DVD cô ấy MUA.' },
           { q: 'What did the girl leave at Ben’s {{flat}}?', audio: '1-05-q5', img: ['l12/q5A.jpg', 'l12/q5B.jpg', 'l12/q5C.jpg'], desc: ['jacket', 'books', 'bike lights'], key: 'C', h: 'Nghe kĩ những câu đầu tiên của cô gái.' },
+        ] },
+    ],
+  },
+
+  /* ===================== TUẦN 3 – 2.1 For sale + 2.2 Shopping from home ===================== */
+  3: {
+    code: '2.1–2.2', title: 'Shopping', unit: 'Unit 2 · Shopping',
+    newWords: ['bookshop', 'chemist', 'department store', 'market', 'sports shop', 'catalogue', 'price list', 'size', 'in the sale', 'leather', 'customers', 'luggage', 'competition', 'prize'],
+    // Ví dụ trong ô Grammar KHÔNG trùng danh từ trong bài tập
+    grammar: `
+      <h4>1. How much / How many</h4>
+      <ul>
+        <li><b>How many</b> + danh từ <b>đếm được</b> (số nhiều): <i>How <b>many</b> apples have you got?</i></li>
+        <li><b>How much</b> + danh từ <b>không đếm được</b>: <i>How <b>much</b> water do you drink?</i></li>
+        <li>Hỏi giá: <b>How much is / are …?</b> <i>How much <b>is</b> this hat?</i></li>
+      </ul>
+      <h4>2. some / any</h4>
+      <ul>
+        <li><b>some</b>: câu khẳng định, lời mời, nhờ, rủ. <i>I’ve got <b>some</b> pens. · Can I have <b>some</b> juice?</i></li>
+        <li><b>any</b>: câu phủ định và câu hỏi. <i>I haven’t got <b>any</b> pens. · Is there <b>any</b> milk?</i></li>
+      </ul>
+      <h4>3. Số nhiều</h4>
+      <ul>
+        <li>Thường thêm <b>-s</b>: <i>cat → cats</i></li>
+        <li>Tận cùng <b>-s, -ss, -sh, -ch, -x</b> → thêm <b>-es</b>: <i>dish → dishes, watch → watches</i></li>
+        <li>Phụ âm + <b>o</b> → <b>-es</b>: <i>hero → heroes</i> · Phụ âm + <b>y</b> → <b>-ies</b>: <i>story → stories</i> (nhưng <i>toy → toys</i>)</li>
+        <li>Bất quy tắc: <i>child → children, foot → feet</i> · Không đếm được: chỉ có 1 dạng (<i>milk, juice</i>)</li>
+      </ul>`,
+    ex: [
+      /* Mission 1 – 2.1 Ex 1: nối nhóm đồ vật với tên cửa hàng */
+      { id: '1', type: 'pick', noLetter: true, cheer: 'Where do you go to buy these? 🛍️',
+        title: 'Vocabulary: shops',
+        how: 'Where can you buy these things? Match each group of things to a shop.',
+        opts: ['bookshop', 'chemist', 'department store', 'market', 'sports shop'],
+        items: [
+          { pic: 'w3/s1.jpg', key: 'D', h: 'Đồ ăn tươi: cá, rau, hoa quả, phô mai.' },
+          { pic: 'w3/s2.jpg', key: 'A', h: 'Sách, bản đồ, thiệp, tạp chí.' },
+          { pic: 'w3/s3.jpg', key: 'B', h: 'Thuốc ho, dầu gội, xà phòng.' },
+          { pic: 'w3/s4.jpg', key: 'C', h: 'Ví, thắt lưng, áo len, máy ảnh, ô… rất nhiều loại đồ khác nhau.' },
+          { pic: 'w3/s5.jpg', key: 'E', h: 'Bóng, vợt, giày chạy.' },
+        ] },
+
+      /* Mission 2 – 2.1 Ex 3 (cô đổi): chạm chọn much / many, hỏi – đáp tự soạn */
+      { id: '3', type: 'choose', ai: 'k3-howmuch',
+        title: 'Grammar: How much? How many?',
+        how: 'Choose <b>much</b> or <b>many</b>. Read the answer too – it can help you!',
+        choices: ['much', 'many'],
+        example: { t: 'How [[much]] chocolate do you eat?', a: 'Not much – maybe one bar a week.' },
+        items: [
+          { t: 'How [[many]] T-shirts have you got?', a: 'About twenty. I love T-shirts!', h: 'T-shirts có -s → đếm được hay không đếm được?' },
+          { t: 'How [[much]] money do you {{spend}} on sweets?', a: 'Not much. About £2 a week.', h: 'Không ai nói “two moneys” → money đếm được không?' },
+          { t: 'How [[many]] DVDs did you buy last month?', a: 'Three. They were all cartoons!', h: 'Đếm được: one DVD, two DVDs…' },
+          { t: 'How [[much]] {{shampoo}} do you use?', a: 'A lot! I’ve got very long hair.', h: 'Dầu gội là chất lỏng → không đếm từng cái được.' },
+          { t: 'How [[many]] people are there in your family?', a: 'Four: Mum, Dad, my brother and me.', h: 'people là số nhiều của person (one person, two people).' },
+          { t: 'How [[much]] time do you spend on your phone?', a: 'About two hours a day.', h: 'time (thời gian) không đếm được.' },
+          { t: 'How [[many]] {{pairs}} of shoes are there in your room?', a: 'Five pairs – two of them are trainers.', h: 'one pair, two pairs… → đếm được.' },
+          { t: 'How [[much]] is this bag?', a: 'It’s £15.', h: 'Câu này hỏi GIÁ của cái túi. Xem mục 1 trong ô Grammar.' },
+        ] },
+
+      /* Mission 3 – 2.1 Ex 7: đọc 8 mẩu chữ A–H, chọn mẩu nói ý 1–5 */
+      { id: '7', type: 'pick', letters: 8, cheer: 'Read carefully – look for words with the same meaning! 👀',
+        title: 'Reading: what does it say?',
+        how: 'Look at texts A–H. Which text (A–H) says this (1–5)?',
+        gallery: [
+          { L: 'A', img: 'w3/rA.jpg' }, { L: 'B', img: 'w3/rB.jpg' }, { L: 'C', img: 'w3/rC.jpg' }, { L: 'D', img: 'w3/rD.jpg' },
+          { L: 'E', img: 'w3/rE.jpg' }, { L: 'F', img: 'w3/rF.jpg' }, { L: 'G', img: 'w3/rG.jpg' }, { L: 'H', img: 'w3/rH.jpg' },
+        ],
+        items: [
+          { q: 'Things are cheaper than {{usual}} today.', key: 'G', h: 'Rẻ hơn mọi ngày → tìm chữ nói về giảm giá.' },
+          { q: 'You get a drink with this meal.', key: 'D', h: 'Tìm một đồ uống trong các mẩu chữ.' },
+          { q: 'Call the number if you are {{interested}} in any of these.', key: 'H', h: 'Call = gọi điện → mẩu chữ nào có số điện thoại?' },
+          { q: 'It costs nothing to leave your car if you are shopping here.', key: 'B', h: 'costs nothing = free (miễn phí). leave your car = đỗ xe.' },
+          { q: 'Do not put this in a {{machine}}.', key: 'A', h: 'machine ở đây là máy giặt. Mẩu chữ nào nói về cách giặt?' },
+        ] },
+
+      /* Mission 4 – 2.2 Ex 3: nghe hội thoại, điền 5 con số (bỏ câu hỏi ý chính – cô chọn) */
+      { id: '2', type: 'fill', track: '1-07', ai: 'k3-phone', cheer: 'Numbers, numbers! Listen carefully. 🔢',
+        title: 'Listening: ordering on the phone',
+        how: 'Sally is ordering things from a sportswear {{catalogue}}. Listen and write the missing numbers.',
+        items: [
+          { pre: [['Kevin', 'Good morning. Sportswear, Kevin speaking. How can I help you?'],
+                  ['Sally', 'Hi. I’ve got your {{catalogue}} here, but I can’t find the {{price list}}. Can you give me some prices?'],
+                  ['Kevin', 'Of course. Please tell me the page number you’re looking at.']],
+            who: 'Sally', t: 'OK. The first thing is on page [[14|fourteen]] and it’s the football shirt, the blue and red one.', h: 'Số trang của chiếc áo bóng đá – nghe Sally nói “page …”.' },
+          { who: 'Kevin', t: 'OK. The small and medium {{size|sizes}} are £22.65 and large and extra large are £ [[26.40|26.4|twenty six forty]].', h: 'Có 2 giá: £22.65 là cỡ nhỏ và vừa. Em cần giá cỡ lớn.' },
+          { pre: [['Sally', 'Right. I’d like to order one, please, size small.'],
+                  ['Kevin', 'Fine. Have you got any more things to order?']],
+            who: 'Sally', t: 'Yes, I’d like some trainers. They’re on page [[57|fifty seven]]. How much are the black and purple ones at the top of the page?', h: 'Số trang của đôi giày – nghe kĩ cả hai chữ số.' },
+          { who: 'Kevin', t: 'Well, they were £49.50 but they’re {{in the sale}} now, so they’re only £ [[18.95|eighteen ninety five]]. But we don’t have any left in small sizes. What shoe size are you?', h: '£49.50 là giá cũ. Giá bây giờ (in the sale) là bao nhiêu?' },
+          { who: 'Sally', t: 'I’m a [[38|thirty eight]].', h: 'Cỡ giày của Sally.' },
+        ],
+        after: [['Kevin', 'Let me check. Wow, you’re lucky! We’ve got one pair in that size.'],
+                ['Sally', 'Great. Well, that’s all I need. My name and address is …']] },
+
+      /* Mission 5 – 2.2 Ex 5: some / any (chạm chọn) */
+      { id: '5', type: 'choose', ai: 'k3-someany', cheer: 'Positive, negative or a question? 🤔',
+        title: 'Grammar: some or any?',
+        how: 'Complete the sentences with <b>some</b> or <b>any</b>.',
+        choices: ['some', 'any'],
+        example: { t: 'I can’t find [[any]] sunglasses I like here.' },
+        items: [
+          { t: 'There are [[some]] nice jackets in the shops at the moment.', h: 'Đây là câu khẳng định.' },
+          { t: 'Are there [[any]] yellow surfing T-shirts in the sale?', h: 'Đây là câu hỏi.' },
+          { t: 'I want to buy [[some]] trainers, please.', h: 'Câu khẳng định (em muốn mua).' },
+          { t: 'Mum, can you lend me [[some]] money?', h: 'Câu hỏi nhưng thật ra là lời NHỜ. Xem mục 2 trong ô Grammar.' },
+          { t: 'Let’s get [[some]] sandwiches.', h: 'Let’s… là lời rủ, câu khẳng định.' },
+          { t: 'Has that website got [[any]] special prices?', h: 'Câu hỏi bình thường (hỏi thông tin).' },
+          { t: 'Why don’t we buy [[some]] new DVDs?', h: '“Why don’t we…?” là lời RỦ, không phải câu hỏi thật.' },
+          { t: 'There isn’t [[any]] bread left – can you get [[some]] in town?', h: 'Vế 1 là câu phủ định, vế 2 là lời nhờ.' },
+        ] },
+
+      /* Mission 6 – 2.2 Activity: Picture puzzle (số ít + số nhiều, chữ cái cuối → câu bí mật) */
+      { id: 'A', type: 'plural',
+        title: 'Picture puzzle',
+        how: 'Write the {{singular}} and {{plural}} forms of the word for each picture.',
+        example: { img: 'w3/a1.jpg', s: 'map', p: 'maps' },
+        items: [
+          { img: 'w3/a2.jpg', s: 'camera', p: 'cameras', h: 'Chỉ cần thêm -s.' },
+          { img: 'w3/a3.jpg', s: 'bus', p: 'buses', h: 'Tận cùng -s → thêm -es.' },
+          { img: 'w3/a4.jpg', s: 'dress', p: 'dresses', h: 'Tận cùng -ss → thêm -es.' },
+          { img: 'w3/a5.jpg', s: 'book', p: 'books', h: 'Chỉ cần thêm -s.' },
+          { img: 'w3/a6.jpg', s: 'bicycle|bike', p: 'bicycles|bikes', h: 'Chỉ cần thêm -s.' },
+          { img: 'w3/a7.jpg', s: 'fly', p: 'flies', h: 'Phụ âm + y → bỏ y, thêm -ies.' },
+          { img: 'w3/a8.jpg', s: 'rice', p: 'rice', h: 'Gạo không đếm được → chỉ có 1 dạng, không thêm -s.' },
+          { img: 'w3/a9.jpg', s: 'box', p: 'boxes', h: 'Tận cùng -x → thêm -es.' },
+          { img: 'w3/a10.jpg', s: 'banana', p: 'bananas', h: 'Chỉ cần thêm -s.' },
+          { img: 'w3/a11.jpg', s: 'arm', p: 'arms', h: 'Chỉ cần thêm -s.' },
+          { img: 'w3/a12.jpg', s: 'glass', p: 'glasses', h: 'Tận cùng -ss → thêm -es.' },
+          { img: 'w3/a13.jpg', s: 'tomato', p: 'tomatoes', h: 'Phụ âm + o → thêm -es.' },
+          { img: 'w3/a14.jpg', s: 'potato', p: 'potatoes', h: 'Phụ âm + o → thêm -es.' },
+          { img: 'w3/a15.jpg', s: 'lion', p: 'lions', h: 'Chỉ cần thêm -s.' },
+        ],
+        // ô chữ: chữ cái CUỐI của từ số ít, nhóm 4 – 3 – 4 – 4
+        puzzle: { how: 'The last letter of each singular word goes in the boxes. They make four words. What do the words say?', groups: [4, 3, 4, 4], key: 'pass key exam soon', show: 'PASS KEY EXAM SOON' } },
+
+      /* Mission 7 – Exam folder 2: Reading Part 1 (biển báo gõ lại cho rõ) */
+      { id: 'R', type: 'pick', letters: 8, cross: 'D', cheer: 'Exam time! Cross out the example letter first. ✍️',
+        title: 'Reading Part 1: notices',
+        how: 'Which notice (A–H) says this (1–5)?',
+        gallery: [
+          { L: 'A', html: 'Buy train tickets at machine<br>when office is closed', cls: 'nt-box' },
+          { L: 'B', html: '<b>FOR SALE</b><br>Boy’s bike, only 2 months old<br>Half usual price', cls: 'nt-left' },
+          { L: 'C', html: 'TICKETS FOR TONIGHT’S<br>CONCERT ARE ON SALE HERE<br><small>FROM 7 PM</small>', cls: 'nt-grey' },
+          { L: 'D', html: 'PLEASE PUT ALL {{luggage|LUGGAGE}}<br>ABOVE YOUR SEAT', cls: 'nt-box' },
+          { L: 'E', html: '<b>SALE ENDS NEXT TUESDAY –<br>15% OFF EVERYTHING UNTIL THEN</b>', cls: 'nt-dark' },
+          { L: 'F', html: 'UNDER 16s GOLF {{competition|COMPETITION}}<br><b>FIRST {{prize|PRIZE}} £30!</b>', cls: 'nt-box' },
+          { L: 'G', html: 'SPEND £50 AND GET A<br><b class="big">FREE</b> SPORTS BAG', cls: 'nt-round' },
+          { L: 'H', html: 'POOL OPENING HOURS NOW LONGER:<br>7 am – 10 pm (was 8.45 pm)', cls: 'nt-grey2' },
+        ],
+        example: { q: 'Do not leave any {{suitcases}} on the floor.', key: 'D' },
+        items: [
+          { q: 'It is possible to swim later in the evening now.', key: 'H', h: 'swim → tìm nơi bơi. later → giờ mở cửa thay đổi thế nào?' },
+          { q: 'This is cheaper because it isn’t new.', key: 'B', h: 'isn’t new → đồ đã dùng rồi.' },
+          { q: 'All our prices are lower for a short time.', key: 'E', h: 'All our prices = mọi món. for a short time = chỉ đến một ngày nào đó thôi.' },
+          { q: 'You can pay for your {{journey}} in a different way if {{necessary}}.', key: 'A', h: 'journey = chuyến đi (tàu, xe). Nếu quầy bán vé đóng cửa thì sao?' },
+          { q: 'If you are 15 or younger, you may win some money.', key: 'F', h: '15 or younger → tìm biển có giới hạn tuổi.' },
         ] },
     ],
   },

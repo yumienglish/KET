@@ -346,6 +346,8 @@ const CHEER = {
   write: 'Remember the word order! 🧩',
   fill: 'Read the whole sentence first. 👀',
   pick: 'Listen, then tap the right answer! 🎧',
+  choose: 'Countable or uncountable? Think first! 🤔',
+  plural: 'One map, two maps… Watch the spelling! ✏️',
 };
 // Hình minh hoạ ChatGPT: img/ai/<tên>.jpg – chưa có file thì tự ẩn
 const aiImg = n => `<img class="aiimg" src="img/ai/${n}.jpg" alt="" loading="lazy" onerror="this.remove()">`;
@@ -466,24 +468,75 @@ const tapWords = t => plain(t.replace(/\[\[[^\]]+\]\]/g, ' ____ ')).split(/(\s+)
   const w = p.replace(/^[^A-Za-z’']+|[^A-Za-z’']+$/g, '');
   return w && /[a-z]/i.test(w) ? p.replace(w, `<button type="button" class="tw" data-w="${esc(w.toLowerCase().replace(/’/g, "'"))}">${esc(w)}</button>`) : esc(p);
 }).join('');
+// dòng hội thoại (không có chỗ trống)
+const dlLine = l => `<div class="dl"><b class="spk">${esc(l[0])}</b><span>${vt(l[1])}</span></div>`;
 function exFill(e){
-  return `<div class="wb2"><div class="wbl">
-      ${e.example ? `<div class="fli ex0"><span class="cn">0</span><span>${fillLine(e.example)}</span></div>` : ''}
+  const rows = `${e.example ? `<div class="fli ex0"><span class="cn">0</span><span>${fillLine(e.example)}</span></div>` : ''}
       ${e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
+        if (it.who) return `<div class="qi dlg" data-qk="${k}">${(it.pre || []).map(dlLine).join('')}
+          <div class="dl dlq"><b class="spk">${esc(it.who)}</b><span><span class="cn sm">${j + 1}</span> ${fillLine(it.t, k)}</span></div><div class="fix" id="fix-${k}"></div></div>`;
         return `<div class="qi fli" data-qk="${k}"><span class="cn">${j + 1}</span><span>${fillLine(it.t, k)}</span><div class="fix" id="fix-${k}"></div></div>`; }).join('')}
+      ${e.after ? `<div class="dla">${e.after.map(dlLine).join('')}</div>` : ''}`;
+  if (!e.box) return `<div class="dlbox">${rows}</div>`;
+  return `<div class="wb2"><div class="wbl">${rows}
     </div>${bankHtml(e, e.box, '📦 Words')}</div>
     ${e.adj ? `<div class="qi adjb" data-qk="${e.id}-adj"><h3>🔎 ${esc(e.adj.how)}</h3><div class="adjc" id="adjc-${e.id}"></div>
       <div class="adjs">${[e.example].concat(e.items.map(x => x.t)).filter(Boolean).map((t, i) => `<p><span class="cn sm">${i}</span> ${tapWords(t)}</p>`).join('')}</div>
       <div class="fix" id="fix-${e.id}-adj"></div></div>` : ''}`;
 }
+// Chọn đáp án: 3 tranh / 3 chữ (Listening), tranh + tên cửa hàng (opts chung), hoặc chữ cái A–H với khung mẩu chữ (gallery)
+const LET = 'ABCDEFGH';
+const pickOpts = (e, it) => it.opts || e.opts || null;
+const pickText = (e, it, L) => { const i = LET.indexOf(L), o = pickOpts(e, it); return it.desc ? it.desc[i] : o ? o[i] : ''; };
 function exPick(e){
-  return e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
-    return `<div class="qi pki" data-qk="${k}"><div class="pkq"><span class="cn">${j + 1}</span><span>${vt(it.q)}</span></div>
-      <audio controls preload="none" src="audio/${it.audio}.mp3"></audio>
-      <div class="pko">${['A', 'B', 'C'].map((L, i) => `<button type="button" class="pk${it.img ? '' : ' txto'}" data-pk="${k}" data-val="${L}">
-        ${it.img ? `<img src="img/${it.img[i]}" alt="${esc(it.desc ? it.desc[i] : L)}" loading="lazy">` : `<span class="pkt">${esc(it.opts[i])}</span>`}<b class="pkl">${L}</b></button>`).join('')}</div>
-      <div class="fix" id="fix-${k}"></div></div>`; }).join('');
+  const gal = e.gallery ? `<div class="gal">${e.gallery.map(g => `<div class="gi${g.L === e.cross ? ' gix' : ''}"><b class="gl">${g.L}</b>${g.img
+      ? `<img src="img/${g.img}" alt="Text ${g.L}" loading="lazy">` : `<div class="nt ${g.cls || ''}">${vt(g.html)}</div>`}</div>`).join('')}</div>` : '';
+  const ex = e.example ? `<div class="pkx"><span class="cn">0</span><span>${vt(e.example.q)}</span><span class="pkxa">Answer: <b>${e.example.key}</b></span></div>` : '';
+  return gal + ex + e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
+    const o = pickOpts(e, it), Ls = e.letters ? LET.slice(0, e.letters).split('') : LET.slice(0, it.img ? it.img.length : o.length).split('');
+    const btns = e.letters
+      ? `<div class="pko lt">${Ls.map(L => `<button type="button" class="pk lt${L === e.cross ? ' x' : ''}" data-pk="${k}" data-val="${L}"${L === e.cross ? ' disabled' : ''}><b class="pkl">${L}</b></button>`).join('')}</div>`
+      : `<div class="pko${e.noLetter ? ' nl' : ''}">${Ls.map((L, i) => `<button type="button" class="pk${it.img ? '' : ' txto'}" data-pk="${k}" data-val="${L}">
+        ${it.img ? `<img src="img/${it.img[i]}" alt="${esc(it.desc ? it.desc[i] : L)}" loading="lazy">` : `<span class="pkt">${esc(o[i])}</span>`}${e.noLetter ? '' : `<b class="pkl">${L}</b>`}</button>`).join('')}</div>`;
+    return `<div class="qi pki" data-qk="${k}"><div class="pkq"><span class="cn">${j + 1}</span><span>${it.q ? vt(it.q) : ''}</span></div>
+      ${it.pic ? `<img class="pkpic" src="img/${it.pic}" alt="Picture ${j + 1}" loading="lazy">` : ''}
+      ${it.audio ? `<audio controls preload="none" src="audio/${it.audio}.mp3"></audio>` : ''}
+      ${btns}<div class="fix" id="fix-${k}"></div></div>`; }).join('');
 }
+// Chạm chọn từ trong câu (much / many, some / any): mỗi [[đáp án]] là một nhóm nút
+const blanksOf = t => (t.match(/\[\[[^\]]+\]\]/g) || []).map(x => x.slice(2, -2));
+function chooseLine(e, t, k){
+  let i = 0;
+  return t.split(/\[\[([^\]]+)\]\]/).map((p, n) => {
+    if (!(n % 2)) return vt(p);
+    if (!k) return `<span class="exv">${esc(p)}</span>`;
+    const bi = i++;
+    return `<span class="cbg">${e.choices.map(c => `<button type="button" class="cb" data-cb="${k}" data-i="${bi}" data-val="${esc(c)}">${esc(c)}</button>`).join('')}</span>`;
+  }).join('');
+}
+function exChoose(e){
+  return `${e.example ? `<div class="fli ex0 chi"><span class="cn">0</span><span>${chooseLine(e, e.example.t)}${e.example.a ? `<span class="rep">– ${vt(e.example.a)}</span>` : ''}</span></div>` : ''}
+    ${e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
+      return `<div class="qi fli chi" data-qk="${k}"><span class="cn">${j + 1}</span><span>${chooseLine(e, it.t, k)}${it.a ? `<span class="rep">– ${vt(it.a)}</span>` : ''}</span><div class="fix" id="fix-${k}"></div></div>`; }).join('')}`;
+}
+// Số ít + số nhiều theo tranh, chữ cái cuối của từ số ít → ô chữ bí mật
+const lastL = s => { const x = letters(s); return x ? x.slice(-1) : ''; };
+function exPlural(e){
+  const ex = e.example, pz = e.puzzle;
+  const card = (img, n, a, b) => `<div class="plc"><img src="img/${img}" alt="Picture ${n}" loading="lazy"><div class="plf">${a}${b}</div>`;
+  let n = 0;
+  const boxes = pz ? pz.groups.map(g => `<span class="pzg">${Array.from({ length: g }, () => { n++; return `<span class="pzb" data-pz="${n}"><i>${n}</i><b></b></span>`; }).join('')}</span>`).join('') : '';
+  return `<div class="plg">
+      ${card(ex.img, 1, `<span class="pll">one</span><span class="exv">${esc(ex.s)}</span>`, `<span class="pll">two +</span><span class="exv">${esc(ex.p)}</span>`)}<span class="plx">Example</span></div>
+      ${e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
+        return `<div class="qi pli" data-qk="${k}">${card(it.img, j + 2,
+          `<label class="pll" for="pl-${k}s">one</label><input class="txt pl" id="pl-${k}s" data-k="${k}s" ${ia} aria-label="Picture ${j + 2} singular">`,
+          `<label class="pll" for="pl-${k}p">two +</label><input class="txt pl" id="pl-${k}p" data-k="${k}p" ${ia} aria-label="Picture ${j + 2} plural">`)}<div class="fix" id="fix-${k}"></div></div></div>`; }).join('')}
+    </div>
+    ${pz ? `<div class="qi pzq" data-qk="${e.id}-w"><h3>🔐 ${vt(pz.how)}</h3><div class="pz" id="pz-${e.id}">${boxes}</div>
+      <div class="pzw"><span>The words say:</span>${txtIn(e.id + '-w', 'Secret message')}</div><div class="fix" id="fix-${e.id}-w"></div></div>` : ''}`;
+}
+let PZ_WIN = null; // null = chưa vẽ lần nào (mở lại trang không bắn pháo giấy)
 const adjKey = e => e.id + '-adj';
 // tính từ em đã chạm: tính từ đúng xếp trước (để chấm theo ô 1, 2, 3)
 const adjSlots = e => { const p = S.ch[adjKey(e)] || [], v = e.adj.valid; return p.filter(w => v.includes(w)).concat(p.filter(w => !v.includes(w))); };
@@ -528,11 +581,35 @@ function paintNew(){
   });
   exOf('pick').forEach(e => e.items.forEach((it, j) => {
     const k = e.id + '-' + (j + 1), ch = S.ch[k], ed = canEdit(k), it2 = R && R.items[k];
-    $$(`[data-pk="${k}"]`).forEach(b => { const v = b.dataset.val; b.classList.toggle('on', v === ch); b.disabled = !ed;
+    $$(`[data-pk="${k}"]`).forEach(b => { const v = b.dataset.val; b.classList.toggle('on', v === ch); b.disabled = !ed || v === e.cross;
       b.classList.toggle('right', fin && v === it.key); b.classList.toggle('wrong', !!it2 && (fin || !ed) && v === ch && !it2.ok); });
     mark($(`[data-qk="${k}"]`), k);
-    hint(k, it.key + (it.desc ? ' (' + it.desc['ABC'.indexOf(it.key)] + ')' : it.opts ? ' (' + it.opts['ABC'.indexOf(it.key)] + ')' : ''));
+    const tx = pickText(e, it, it.key); hint(k, e.noLetter ? tx : it.key + (tx ? ' (' + tx + ')' : ''));
   }));
+  exOf('choose').forEach(e => e.items.forEach((it, j) => {
+    const k = e.id + '-' + (j + 1), ch = S.ch[k] || [], ed = canEdit(k), keys = blanksOf(it.t), it2 = R && R.items[k];
+    $$(`[data-cb="${k}"]`).forEach(b => { const i = +b.dataset.i, v = b.dataset.val, on = ch[i] === v; b.classList.toggle('on', on); b.disabled = !ed;
+      b.classList.toggle('right', fin && v === keys[i]); b.classList.toggle('wrong', !!it2 && (fin || !ed) && on && v !== keys[i]); });
+    mark($(`[data-qk="${k}"]`), k);
+    hint(k, plain(it.t.replace(/\[\[([^\]]+)\]\]/g, '$1')));
+  }));
+  exOf('plural').forEach(e => {
+    e.items.forEach((it, j) => {
+      const k = e.id + '-' + (j + 1), ed = canEdit(k);
+      ['s', 'p'].forEach(x => { const el = $(`input.txt[data-k="${k}${x}"]`); if (!el) return;
+        if (el.value !== (S.t[k + x] || '')) el.value = S.t[k + x] || ''; el.disabled = !ed; });
+      mark($(`[data-qk="${k}"]`), k);
+      hint(k, alts(it.s)[0] + ' / ' + alts(it.p)[0]);
+    });
+    if (!e.puzzle) return;
+    // ô chữ tự hiện chữ cái cuối của các từ số ít em đã gõ
+    const want = letters(e.puzzle.key), got = [lastL(e.example.s)].concat(e.items.map((it, j) => lastL(S.t[e.id + '-' + (j + 1) + 's'])));
+    $$(`#pz-${e.id} .pzb`).forEach((b, i) => { const L = got[i] || ''; $('b', b).textContent = L.toUpperCase(); b.classList.toggle('on', !!L); });
+    const win = got.join('') === want, box = $('#pz-' + e.id);
+    if (box) box.classList.toggle('win', win);
+    if (win && PZ_WIN === false && S.phase !== 'done' && typeof confetti === 'function'){ confetti(60); if (typeof sfx === 'function') sfx('win'); }
+    PZ_WIN = win;
+  });
 }
 // chạm từ trong khung: bài fixit → chèn vào chỗ con trỏ; bài fill → điền vào ô đang chọn / ô trống đầu tiên
 let LASTIN = null;
@@ -582,13 +659,14 @@ function buildLesson(){
       ${LESSON.grammar ? `<section class="card gram"><h2>📘 Grammar</h2><div class="gbody">${LESSON.grammar}</div></section>` : ''}
       ${LESSON.ex.map(e => `<section class="card ex" id="ex${e.id}">${exHead(e)}${
         e.type === 'reasons' ? exReasons(e) : e.type === 'spell' ? exSpell(e) : e.type === 'info' ? exInfo(e)
-          : e.type === 'fixit' ? exFixit(e) : e.type === 'write' ? exWrite(e) : e.type === 'fill' ? exFill(e) : e.type === 'pick' ? exPick(e) : exSpeak(e)}</section>`).join('')}
+          : e.type === 'fixit' ? exFixit(e) : e.type === 'write' ? exWrite(e) : e.type === 'fill' ? exFill(e) : e.type === 'pick' ? exPick(e)
+          : e.type === 'choose' ? exChoose(e) : e.type === 'plural' ? exPlural(e) : exSpeak(e)}</section>`).join('')}
     </div>`;
 
   // nhập chữ
   $$('input.txt, textarea.txt').forEach(el => {
     el.value = S.t[el.dataset.k] || '';
-    el.addEventListener('input', () => { if (el.disabled || S.phase === 'done') return; S.t[el.dataset.k] = el.value; if (S.phase === 'retry') el.classList.remove('bad'); save(); progress(); paintCounts(); if (el.matches('.fb')) paintNew(); });
+    el.addEventListener('input', () => { if (el.disabled || S.phase === 'done') return; S.t[el.dataset.k] = el.value; if (S.phase === 'retry') el.classList.remove('bad'); save(); progress(); paintCounts(); if (el.matches('.fb, .pl')) paintNew(); });
   });
   // chạm tranh / chọn lý do hay nhất
   $('#app').addEventListener('click', ev => {
@@ -613,6 +691,9 @@ function buildLesson(){
     }
     const pk = ev.target.closest('[data-pk]');
     if (pk && canEdit(pk.dataset.pk)){ S.ch[pk.dataset.pk] = pk.dataset.val; save(); paintNew(); progress(); return; }
+    // much / many, some / any: mỗi chỗ trống lưu 1 lựa chọn (S.ch[k] = mảng theo thứ tự chỗ trống)
+    const cb = ev.target.closest('[data-cb]');
+    if (cb && canEdit(cb.dataset.cb)){ const k = cb.dataset.cb, a = (S.ch[k] || []).slice(); a[+cb.dataset.i] = cb.dataset.val; S.ch[k] = a; save(); paintNew(); progress(); return; }
     const chip = ev.target.closest('.chip[data-chip]');
     if (chip && !chip.disabled){ useChip(chip); return; }
     const tw = ev.target.closest('.tw');
@@ -684,6 +765,8 @@ function tasks(){
     a.push({ k, ex: e.id, done: ch === 'ok' || (ch === 'bad' && !!w && w !== sn(it.t)) }); }));
   exOf('fill').forEach(e => { if (e.adj) a.push({ k: adjKey(e), ex: e.id, done: (S.ch[adjKey(e)] || []).length === 3 }); });
   exOf('pick').forEach(e => e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1); a.push({ k, ex: e.id, done: !!S.ch[k] }); }));
+  exOf('choose').forEach(e => e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1), ch = S.ch[k] || [];
+    a.push({ k, ex: e.id, done: blanksOf(it.t).every((x, i) => !!ch[i]) }); }));
   return a;
 }
 // Mission xong (đã làm đủ, chưa biết đúng sai) → huy hiệu ✅ trên đầu bài; lần đầu xong thì kêu "ting"
@@ -745,7 +828,14 @@ function gradeNow(){
       items[k] = { ans, ok: !!ans && alts(key).some(a => sn(a) === sn(ans)) }; });
     if (e.adj){ const sl = adjSlots(e); [0, 1, 2].forEach(i => { const w = sl[i] || ''; items[adjKey(e) + '-' + (i + 1)] = { ans: w, ok: !!w && e.adj.valid.includes(w) }; }); }
   });
-  exOf('pick').forEach(e => e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1), ans = S.ch[k] || ''; items[k] = { ans, ok: ans === it.key }; }));
+  exOf('pick').forEach(e => e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1), ch = S.ch[k] || ''; items[k] = { ans: ch && e.noLetter ? pickText(e, it, ch) : ch, ok: ch === it.key }; }));
+  exOf('choose').forEach(e => e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1), ch = S.ch[k] || [], keys = blanksOf(it.t);
+    items[k] = { ans: ch.some(Boolean) ? keys.map((x, i) => ch[i] || '…').join(' / ') : '', ok: keys.every((x, i) => ch[i] === x) }; }));
+  exOf('plural').forEach(e => {
+    e.items.forEach((it, j) => { const k = e.id + '-' + (j + 1), s = (S.t[k + 's'] || '').trim(), p = (S.t[k + 'p'] || '').trim();
+      items[k] = { ans: s || p ? s + ' / ' + p : '', ok: alts(it.s).some(a => sn(a) === sn(s)) && alts(it.p).some(a => sn(a) === sn(p)) }; });
+    if (e.puzzle){ const k = e.id + '-w', ans = (S.t[k] || '').trim(); items[k] = { ans, ok: !!ans && alts(e.puzzle.key).some(a => sn(a) === sn(ans)) }; }
+  });
   const ks = Object.keys(items);
   return { items, score: ks.filter(k => items[k].ok).length, total: ks.length };
 }
@@ -757,11 +847,17 @@ function itemList(){
   exOf('fixit').forEach(e => e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: 'Câu gốc: ' + it.t, correct: it.fix ? '❌ → ' + alts(it.fix)[0] : '✅ Correct' })));
   exOf('write').forEach(e => e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: it.cue, correct: it.show || alts(it.key)[0] })));
   exOf('fill').forEach(e => {
-    e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: plain(it.t.replace(/\[\[[^\]]+\]\]/, '____')), correct: (it.t.match(/\[\[([^\]]+)\]\]/) || [])[1] }));
+    e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: (it.who ? it.who + ': ' : '') + plain(it.t.replace(/\[\[[^\]]+\]\]/, '____')), correct: alts((it.t.match(/\[\[([^\]]+)\]\]/) || [])[1])[0] }));
     if (e.adj) [1, 2, 3].forEach(i => L.push({ sec: String(exNo(e)), k: adjKey(e) + '-' + i, n: 'Tính từ ' + i, q: 'Tìm thêm 3 tính từ trong các câu', correct: e.adj.show }));
   });
-  exOf('pick').forEach(e => e.items.forEach((it, j) => { const i = 'ABC'.indexOf(it.key);
-    L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: plain(it.q), correct: it.key + ' (' + (it.desc ? it.desc[i] : it.opts[i]) + ')' }); }));
+  exOf('pick').forEach(e => e.items.forEach((it, j) => { const tx = pickText(e, it, it.key);
+    L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1), q: it.q ? plain(it.q) : 'Tranh ' + (j + 1), correct: e.noLetter ? tx : it.key + (tx ? ' (' + tx + ')' : '') }); }));
+  exOf('choose').forEach(e => e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 1),
+    q: plain(it.t.replace(/\[\[[^\]]+\]\]/g, '____')), correct: blanksOf(it.t).join(' / ') })));
+  exOf('plural').forEach(e => {
+    e.items.forEach((it, j) => L.push({ sec: String(exNo(e)), k: e.id + '-' + (j + 1), n: String(j + 2), q: 'Hình ' + (j + 2) + ': số ít / số nhiều', correct: alts(it.s)[0] + ' / ' + alts(it.p)[0] }));
+    if (e.puzzle) L.push({ sec: String(exNo(e)), k: e.id + '-w', n: 'Ô chữ', q: 'Chữ cái cuối ghép thành câu gì?', correct: e.puzzle.show });
+  });
   return L;
 }
 
@@ -791,14 +887,20 @@ function hintFor(k){
     if (S.r1.items[k].ans.startsWith('✅')) return 'Câu này có lỗi đó! ' + it.h;
     return it.h;
   }
-  if (e.type === 'write' || e.type === 'fill' || e.type === 'pick') return itemOf(e, k).h || 'Xem lại câu này nhé.';
+  if (e.type === 'plural'){
+    if (k === e.id + '-w') return 'Đọc các chữ cái trong ô theo từng nhóm. Nếu ô chữ chưa ra từ có nghĩa, xem lại các từ số ít ở trên.';
+    const it = itemOf(e, k), s = ans.split(' / ')[0] || '';
+    if (!alts(it.s).some(a => sn(a) === sn(s))) return 'Xem lại tên của đồ vật trong hình (số ít). Chữ cái cuối phải khớp với ô chữ bên dưới.';
+    return it.h || 'Xem lại cách viết số nhiều.';
+  }
+  if (e.type === 'write' || e.type === 'fill' || e.type === 'pick' || e.type === 'choose') return itemOf(e, k).h || 'Xem lại câu này nhé.';
   let n = 0, who = '', keys = [];
   e.people.forEach(p => p.rows.forEach(r => { if (r.ex) return; n++; if (e.id + '-' + n === k){ who = p.name; keys = alts(r.key); } }));
   const y = norm(ans);
   if (keys.some(a => { const x = norm(a); return x.length >= 4 && lev(x, y) <= Math.max(1, Math.floor(x.length / 4)); })) return 'Gần đúng rồi! Xem lại chính tả.';
   return `Nghe lại đoạn ${who} nói.`;
 }
-const ITEM_SEL = '.sp, .person, .qrow, .qi, .fli.ex0, .wex';
+const ITEM_SEL = '.sp, .person, .qrow, .qi, .fli.ex0, .wex, .dla, .pkx, .plg > .plc';
 function focusWrong(on){
   document.body.classList.toggle('retrying', !!on);
   $$('.rt-hide').forEach(x => x.classList.remove('rt-hide'));

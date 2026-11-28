@@ -244,7 +244,7 @@ document.addEventListener('change', ev => {
 });
 document.addEventListener('click', ev => {
   if (!canPlay() || !ev.target.closest) return;
-  const z = ev.target.closest('.zone, .bstar'); if (z && !z.disabled){ sfx('pop'); bounce(z.closest('.bstar') || z); }
+  const z = ev.target.closest('.zone, .bstar, .pk, .cb, .tf'); if (z && !z.disabled){ sfx('pop'); bounce(z.closest('.bstar') || z); }
 });
 
 /* ---------- Gắn vào trang chủ ---------- */
