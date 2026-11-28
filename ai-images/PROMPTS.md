@@ -59,3 +59,22 @@ Inside a bright spaceship cabin, a kid with a microphone interviews a smiling fr
 ```
 A fun row of five cute round alien kids sitting on a crescent moon, each showing a different mood with a big clear facial expression: very excited with sparkly eyes, surprised, sleepy, laughing, thinking. Small stars and planets around them. A cute puppy astronaut waves at them.
 ```
+
+---
+
+## Tuần 3 – 2.1 For sale + 2.2 Shopping from home
+
+### 8. `k3-howmuch.png` – Mission 2 (How much? How many?)
+```
+A cheerful kid astronaut pushing a small shopping trolley through a colourful supermarket on a space station. On the shelves: neat stacks of folded T-shirts, rows of round sweets in jars, and big bottles of juice. The kid looks at the shelves with a curious, thinking face. A cute puppy astronaut (golden-brown fur, white-and-violet space suit) sits in the trolley holding a tiny shopping list (no writing visible).
+```
+
+### 9. `k3-phone.png` – Mission 4 (nghe gọi điện đặt hàng)
+```
+Split scene. Left: a girl at home on a sofa talking on a phone, with a big open sports catalogue on her lap showing football shirts and trainers (pictures only, no writing, no numbers). Right: a friendly young shop assistant with a headset in a bright sportswear shop on a space station, shelves of football shirts and trainers behind him. A cute puppy astronaut floats between them holding a shopping bag.
+```
+
+### 10. `k3-someany.png` – Mission 5 (some / any)
+```
+Two kid friends with shopping bags walking happily through a colourful outdoor market on a small round planet. Stalls show jackets, T-shirts, trainers and baskets of sandwiches; one small stall is completely empty. A cute puppy astronaut walks with them carrying a loaf of bread.
+```
