@@ -492,7 +492,7 @@ function exPick(e){
   const gal = e.gallery ? `<div class="gal">${e.gallery.map(g => `<div class="gi${g.L === e.cross ? ' gix' : ''}"><b class="gl">${g.L}</b>${g.img
       ? `<img src="img/${g.img}" alt="Text ${g.L}" loading="lazy">` : `<div class="nt ${g.cls || ''}">${vt(g.html)}</div>`}</div>`).join('')}</div>` : '';
   const ex = e.example ? `<div class="pkx"><span class="cn">0</span><span>${vt(e.example.q)}</span><span class="pkxa">Answer: <b>${e.example.key}</b></span></div>` : '';
-  return gal + ex + e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
+  const rows = e.items.map((it, j) => { const k = e.id + '-' + (j + 1);
     const o = pickOpts(e, it), Ls = e.letters ? LET.slice(0, e.letters).split('') : LET.slice(0, it.img ? it.img.length : o.length).split('');
     const btns = e.letters
       ? `<div class="pko lt">${Ls.map(L => `<button type="button" class="pk lt${L === e.cross ? ' x' : ''}" data-pk="${k}" data-val="${L}"${L === e.cross ? ' disabled' : ''}><b class="pkl">${L}</b></button>`).join('')}</div>`
@@ -502,6 +502,15 @@ function exPick(e){
       ${it.pic ? `<img class="pkpic" src="img/${it.pic}" alt="Picture ${j + 1}" loading="lazy">` : ''}
       ${it.audio ? `<audio controls preload="none" src="audio/${it.audio}.mp3"></audio>` : ''}
       ${btns}<div class="fix" id="fix-${k}"></div></div>`; }).join('');
+  // có khung A–H: 2 cột song song để nối (câu hỏi trái, khung chữ phải dính theo khi cuộn; chạm vào ô để phóng to)
+  return gal ? `<div class="mt2"><div class="mtl">${ex}${rows}</div><aside class="mtg"><div class="mtgh">🔍 Tap to zoom</div>${gal}</aside></div>` : ex + rows;
+}
+// phóng to một ô A–H
+function zoomGi(gi){
+  const ov = document.createElement('div'); ov.className = 'zoomov';
+  ov.innerHTML = `<div class="zoombox">${gi.innerHTML}<span class="zoomx">✕</span></div>`;
+  ov.addEventListener('click', () => ov.remove());
+  document.body.appendChild(ov);
 }
 // Chạm chọn từ trong câu (much / many, some / any): mỗi [[đáp án]] là một nhóm nút
 const blanksOf = t => (t.match(/\[\[[^\]]+\]\]/g) || []).map(x => x.slice(2, -2));
@@ -689,6 +698,8 @@ function buildLesson(){
       if (tf.dataset.val === 'bad'){ const el = $(`input.txt[data-k="${k}w"]`); if (el){ el.focus(); el._caret = el.value.length; } }
       return;
     }
+    const gi = ev.target.closest('.mtg .gi');
+    if (gi && !ev.target.closest('.vw')){ zoomGi(gi); return; }
     const pk = ev.target.closest('[data-pk]');
     if (pk && canEdit(pk.dataset.pk)){ S.ch[pk.dataset.pk] = pk.dataset.val; save(); paintNew(); progress(); return; }
     // much / many, some / any: mỗi chỗ trống lưu 1 lựa chọn (S.ch[k] = mảng theo thứ tự chỗ trống)
